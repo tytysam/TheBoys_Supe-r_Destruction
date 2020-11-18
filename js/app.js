@@ -14,8 +14,17 @@
 // • Choose your team of 4 from a larger pool of heroes...
 // • More unique stats + moves for each character
 // • Work on difficulty of game... Get it working first though!
+// • Multiple difficulty levels? (ie, Easy = 3 enemies/floors/battles, Medium = 5 enemies/floors/battles, Hard = all 7 enemies/floors/battles)
 // • Ability for characters to utilize a shared item pool..?
-// •
+// • Animations:
+////--> Attack animations (One general, one healing, and a few unique to common attacks like The Boys' specials?)
+////--> Add a class toggle that visually distinguishes the "current" character from the others (animation shake or something) (ie -> selectedChar function that wraps your player move-selection function... )
+////--> Cutscenes: Slide in each character card (full-width container, fixed-toward-bottom for Boys, fixed-toward-top for Supes; 8bit images to left for Boys, to right for Supes; commentary text opposite 8bit image)
+////-->
+////-->
+////-->
+////-->
+////-->
 
 // =======================================================================================
 //  ===== DON'T FORGET ======
@@ -51,6 +60,9 @@ class Humans {
     this.health = health;
     this.stamina = stamina;
     this.accuracy = accuracy;
+  }
+  isDead() {
+    return this.health < 1;
   }
 }
 
@@ -187,6 +199,9 @@ class Supes {
   constructor(name, health) {
     this.name = name;
     this.health = health;
+  }
+  isDead() {
+    return this.health < 1;
   }
 }
 
