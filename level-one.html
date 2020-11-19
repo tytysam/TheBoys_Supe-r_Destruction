@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>The Boys — Supe-r Destruction</title>
     <link rel="stylesheet" href="css/style.css" />
-    <!--   Semantic-UI - Leveraging Semantic-UI in the initial planning + structuring phase to expedite my initial HTML build.
+    <!--   Semantic-UI - Leveraging Semantic-UI in the initial planning + wireframing phase of my initial HTML build.
       These Pieces of code are not designed by me and I do not claim to have coded them and should not be evaluated for grading etc   
     -->
     <link
@@ -51,28 +51,33 @@
         <!-- Middle Info Pane - Interactable - Select action for selectedChar here -->
         <div class="player-action-container ff-style">
           <!-- Below actions are currently being selected via ".player-action-container > h2" -->
-          <h2>ACTION 1</h2>
-          <h2>ACTION 2</h2>
-          <h2>ACTION 3</h2>
+          <!-- *** eventually add hover-listeners that pop out attack-detail modals-->
+          <button id="btn-action-1">ACTION 1</button>
+          <button id="btn-action-2">ACTION 2</button>
+          <button id="btn-action-3">ACTION 3</button>
         </div>
         <!-- Far Right Info Pane - Displays Each Char's Name, Current HP, Current Stamina (SP, Stamina Points?) -->
         <div class="player-stats-container ff-style">
           <!-- Container for each Character's Stats – Name, HP, SP (Stamina Points) -->
           <div class="char-container">
-            <h2>BUTCHER<span>HP 2000 / 2000</span><span>SP 100 / 100</span></h2>
+            <h2>
+              BUTCHER<span>HP 2000 / 2000</span><span>SP 1000 / 1000</span>
+            </h2>
           </div>
           <!-- Container for each Character's Stats – Name, HP, SP (Stamina Points) -->
           <div class="char-container">
-            <h2>M.M. <span>HP 2000 / 2000</span><span>SP 100 / 100</span></h2>
-          </div>
-          <!-- Container for each Character's Stats – Name, HP, SP (Stamina Points) -->
-          <div class="char-container">
-            <h2>HUGHIE <span>HP 2000 / 2000</span><span>SP 100 / 100</span></h2>
+            <h2>M.M. <span>HP 2000 / 2000</span><span>SP 1000 / 1000</span></h2>
           </div>
           <!-- Container for each Character's Stats – Name, HP, SP (Stamina Points) -->
           <div class="char-container">
             <h2>
-              FRENCHIE<span>HP 2000 / 2000</span><span>SP 100 / 100</span>
+              HUGHIE <span>HP 2000 / 2000</span><span>SP 1000 / 1000</span>
+            </h2>
+          </div>
+          <!-- Container for each Character's Stats – Name, HP, SP (Stamina Points) -->
+          <div class="char-container">
+            <h2>
+              FRENCHIE<span>HP 2000 / 2000</span><span>SP 1000 / 1000</span>
             </h2>
           </div>
         </div>
