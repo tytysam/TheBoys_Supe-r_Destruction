@@ -38,25 +38,47 @@
 // CACHED DOM NODES
 // ====================
 
-/* Stat Updates */
-const mmStats = document.getElementById("mm-stats");
-const butcherStats = document.getElementById("butcher-stats");
-const hughieStats = document.getElementById("hughie-stats");
-const frenchieStats = document.getElementById("frenchie-stats");
-const opponentStats = document.getElementById("opponent-stats");
+/* STAT UPDATES */
+const mmStats = document.getElementById("mm-stats"); // mmStats ==> Targets Mother's Milk's HP and SP info in the DOM
+const butcherStats = document.getElementById("butcher-stats"); // butcherStats ==> Targets Butcher's HP and SP info in the DOM
+const hughieStats = document.getElementById("hughie-stats"); // hughieStats ==> Targets Hughie's HP and SP info in the DOM
+const frenchieStats = document.getElementById("frenchie-stats"); // frenchieStats ==> Targets Frenchie's HP and SP info in the DOM
+const opponentStats = document.getElementById("opponent-stats"); //opponentStats ==> Targets current Opponent's HP and SP info in the DOM
 
-/* Buttons */
+/* BUTTONS */
+// Main Actions
 const actionButton1 = document.getElementById("btn-action-1");
 const actionButton2 = document.getElementById("btn-action-2");
 const actionButton3 = document.getElementById("btn-action-3");
 
-// Will-Need List...
-// ==> Action 1 Button
-// ==> Action 2 Button
-// ==> Action 3 Button
-// ==> Heal Target 1 Button
-// ==> Heal Target 2 Button
-// ==> Heal Target 3 Button
+// Heal Buttons assign healIndex | button 1 ==> targets M.M. | button 2 ==> targets Butcher | button 3 ==> targets Hughie | button 4 ==> targets Frenchie |
+const healButton1 = document.getElementById("btn-heal-1");
+const healButton2 = document.getElementById("btn-heal-2");
+const healButton3 = document.getElementById("btn-heal-3");
+const healButton4 = document.getElementById("btn-heal-4");
+
+const getStarted = document.getElementById("get-started");
+
+/* MODALS */
+const welcomeModal = document.getElementById("welcome-modal");
+const message = document.getElementById("message-modal");
+
+// Main Feedback Channel - The updateMessage Modal | Most every action will respond in-kind with a prompt that must be closed to move on.
+const updateMessage = (text) => {
+  message.textContent = text;
+  message.classList.toggle("closed");
+};
+
+const clearMessage = () => {
+  message.classList.toggle("closed");
+  // function to close updateMessage modal && ... what else do we need to have it do...
+};
+
+const toggleModal = () => {
+  // helper function to remove our welcome modal
+  welcomeModal.classList.add("closed");
+};
+
 //
 // Modals...
 // ==> pop-up that we can reference with our updateMessage() function...
@@ -91,16 +113,16 @@ class Humans {
     maxHealth,
     stamina,
     maxStamina,
-    staminaRegenAmount,
-    accuracy
+    accuracy,
+    staminaRegenAmount
   ) {
     this.name = name; // Character Name
     this.health = health; // Current-Health Value
     this.maxHealth = maxHealth; // Maximum-Health Value
     this.stamina = stamina; // Current-Stamina Value
     this.maxStamina = maxStamina; // Maximum-Stamina Value
-    this.staminaRegenAmount = staminaRegenAmount; // Stamina will regenerate for each character by <--THIS amount at the end of each turn
     this.accuracy = accuracy; // Each character has a % chance of hitting each shot. Higher^ accuracy value === higher chance of successfully landing your attack/heal/action
+    this.staminaRegenAmount = staminaRegenAmount; // Stamina will regenerate for each character by <--THIS amount at the end of each turn
   }
 
   /*
@@ -142,8 +164,6 @@ class Humans {
    */
 }
 
-const staminaRegenAmount = 15; // this variable controls how much stamina each of The Boys regenerate at the end of every round
-
 ///////////////////////////////////////////////////////////////////////////////////////
 ////// • Create Class for M.M. (Mother's Milk)
 ////// A father, juvenile boys counselor, and former USMC medic, MM has *range*.
@@ -152,14 +172,23 @@ const staminaRegenAmount = 15; // this variable controls how much stamina each o
 class MM extends Humans {
   //Initialize constructor using super as a "function" to access parent prototype
   // * note: non-ES6 parent-extension ==> function MM(name, health, maxHealth, ...) {Humans.call(this, name, health, maxHealth, ...);} | cont... | MM.prototype = Object.create(Human.prototype); | cont... | MM.prototype.constructor = MM | in other words, a function for the subclass MM needs to be created. since MM is going to inherit the characteristics and behaviors of Humans, we must call the Humans' constructor function inside MM's constructor (<== this call right here does the same thing as super() in ES6). We also need to explicitly pass our "this" reference to the Humans class to ensure the call was made from our MM class. FURTHERMORE (*whew*) we need to set the MM function's prototype as a new object created from the Humans' prototype. In doing this, we are overriding MM's prototype object. Hence, we need to set the constructor of MM explicitly. | <== THESE steps take care of setting the MM class as a subclass of our Humans class
-  constructor(name, health, maxHealth, stamina, maxStamina, accuracy) {
+  constructor(
+    name,
+    health,
+    maxHealth,
+    stamina,
+    maxStamina,
+    accuracy,
+    staminaRegenAmount
+  ) {
     super(
       (name = "Mother's Milk"),
       (health = 800),
       (maxHealth = 800),
       (stamina = 400),
       (maxStamina = 400),
-      (accuracy = 0.8)
+      (accuracy = 0.8),
+      (staminaRegenAmount = 15)
     );
   }
 
@@ -184,34 +213,49 @@ class MM extends Humans {
   tacticalStrike() {
     // * note: mapping super to non-ES6 ==> MM.prototype.tacticalStrike = function() { return `${Humans.prototype."some-function".call(this)}`;} | in other words, the keyword super can also be used as an instance of our parent class to call Humans class-specific details | <== the super instance is ~basically ParentClassName.prototype.methodName.call(this,...)
 
-    let staminaCost = 10; // bind temporary variable of staminaCost to this attack
+    let staminaCost = 20; // bind temporary variable of staminaCost to this attack
     let attackDamage = 50; // bind temporary variable of attackDamage to this attack
 
     if (this.stamina >= staminaCost) {
       // if current stamina >= the required stamina for this attack...
       if (checkIfHit(this) === true) {
         // if our attack successfully hits the enemy...
+        console.log("Success! M.M. landed his attack."); // then console.log
         this.stamina -= staminaCost; // then decrease our stamina by stamina cost
         opponent.health -= attackDamage; // then decrease the target's health by attack damage
-        // *** updateMessage() with `M.M. landed a tactical strike on ${enemy.name} for ${attackDamage} damage!`
+        // then updateMessage()
+        updateMessage(
+          `M.M. landed a tactical strike on ${opponent.name} for ${attackDamage} damage!`
+        );
+
+        // Post-Attack Stack | refactor out eventually?
         this.regenerateStamina(); // then regenerate stamina for the round
+        this.updateStats(); // then updateStats()
         nextCharacter(); // then cycle to the next character
       } else {
         // if our attack missed the enemy...
-        // *** updateMessage() with "M.M.'s attack missed!"
+        console.log("Bummer! M.M. missed his attack."); // then console.log
+        updateMessage("M.M.'s attack missed!"); // then updateMessage()
+
+        // Post-Attack Stack | refactor out eventually?
         this.regenerateStamina(); // then regenerate stamina for the round
+        this.updateStats(); // then updateStats()
         nextCharacter(); // then cycle to the next character
       }
     } else {
       // if our current stamina < the required stamina for this attack...
-      // *** updateMessage() with `${this.name} doesn't have enough stamina! Try choosing a different action.`
+      // then updateMessage()
+      updateMessage(
+        `${this.name} doesn't have enough stamina! Try choosing a different action.`
+      );
     }
   }
 
   ////// FIELD MEDIC – Basic heal command. Targets one individual, heals moderate amount. Heal+, Stamina-
   ///////////////////////////////////////////////////////////////////////////////////////
-  fieldMedic(healTarget) {
-    // Passing healTarget, a global variable, as the argument | healTarget references one of the boys in theBoys array
+  fieldMedic() {
+    // This skill targets healTarget, a global variable that references one of the boys in theBoys array
+    // healTarget is selected via the four heal-target-select-buttons below the 3 main action buttons
 
     let staminaCost = 20; // bind temporary variable of staminaCost to this skill... * note: in another life, I would've used a class constructor to build these skills... then attached all of these properties directly to the skill object... one day...
     let healAmount = 100; // bind temporary variable of healAmount to this skill
@@ -222,40 +266,57 @@ class MM extends Humans {
         // if current stamina >= the required stamina for this skill...
         if (checkIfHit(this) === true) {
           // if our heal is successful...
+          console.log("Success! M.M. landed his heal."); // then console.log
           this.stamina -= staminaCost; // then decrease our stamina by stamina cost
           if (healTarget.health < healTarget.maxHealth - healAmount) {
             // if target's current health < their maxHealth minus heal amount...
             healTarget.health += healAmount; // then increase ally's health by heal amount
-            // *** updateMessage() with `M.M healed ${ally.name} for ${heal amount} HP!`
+            // then updateMessage()
+            updateMessage(
+              `M.M healed ${healTarget.name} for ${healAmount} HP!`
+            );
           } else {
             // if the target's current health > their maxHealth minus heal amount...
             healTarget.health = healTarget.maxHealth; // then set target's current health equal to the value of the target's maxHealth
-            // *** updateMessage() with `M.M. fully restored ${ally.name}'s HP!`
+            // then updateMessage()
+            updateMessage(`M.M. fully restored ${healTarget.name}'s HP!`);
           }
-          // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
-          // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+          // Post-Attack Stack | refactor out eventually?
+          this.regenerateStamina(); // then regenerate stamina for the round
+          this.updateStats(); // then updateStats()
+          nextCharacter(); // then cycle to the next character
         } else {
           // if our heal "missed"...
-          // *** updateMessage() with "M.M.'s heal attempt failed! Son of a ...!"
-          // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
-          // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+          console.log("Bummer! M.M. missed his heal."); // then console.log
+          updateMessage("M.M.'s heal attempt failed! Son of a ...!"); // then updateMessage()
+
+          // Post-Attack Stack | refactor out eventually?
+          this.regenerateStamina(); // then regenerate stamina for the round
+          this.updateStats(); // then updateStats()
+          nextCharacter(); // then cycle to the next character
         }
       } else {
         // if current stamina < the required stamina for this skill...
-        // *** updateMessage() with `${this.name} doesn't have enough stamina! Try choosing a different action.`
+        // then updateMessage()
+        updateMessage(
+          `${this.name} doesn't have enough stamina! Try choosing a different action.`
+        );
       }
     } else {
       // if the character we're trying to target is dead...
-      // *** updateMessage() with `Unfortunately, ${healTarget.name} is already dead! Try changing your heal target, or choosing a different action.`
+      // then updateMessage()
+      updateMessage(
+        `Unfortunately, ${healTarget.name} is already dead! Try changing your heal target, or choosing a different action.`
+      );
     }
   }
 
   ////// *Special*: BATTLEFIELD TRIAGE – FOR A COST... MM can use his skills as a combat medic to revive one teammate. If @ 0 HP, revive (like a phoenix down, with ~some health). Heal+++, Stamina---
   ///////////////////////////////////////////////////////////////////////////////////////
-  battlefieldTriage(healTarget) {
+  battlefieldTriage() {
     // Passing healTarget, a global variable, as the argument | healTarget references one of the boys in theBoys array
 
-    let staminaCost = 150; // bind temporary variable of staminaCost to this skill
+    let staminaCost = 75; // bind temporary variable of staminaCost to this skill
     let healAmount = 50; // bind temporary variable of healAmount to this skill
 
     if (healTarget.isDead() === true) {
@@ -264,24 +325,41 @@ class MM extends Humans {
         // if current stamina >= the required stamina for the skill...
         if (checkIfHit(this) === true) {
           // if our revive is successful...
+          console.log("Success! M.M. landed his revive."); // then console.log
           this.stamina -= staminaCost; // then decrease current stamina by stamina cost
           healTarget.health = healAmount; // then set target's current health equal to the value of healAmount (ie, revive them!)
-          // *** updateMessage() with `M.M. revived ${}! They now have ${healAmount} health.`
-          // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
-          // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+          // then updateMessage()
+          updateMessage(
+            `M.M. revived ${healTarget.name}! They now have ${healAmount} health.`
+          );
+
+          // Post-Attack Stack | refactor out eventually?
+          this.regenerateStamina(); // then regenerate stamina for the round
+          this.updateStats(); // then updateStats()
+          nextCharacter(); // then cycle to the next character
         } else {
           // if our revive "missed"...
-          // *** updateMessage() with "M.M.'s revive attempt failed! What a waste!"
-          // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
-          // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+          console.log("Bummer! M.M. missed his revive."); // then console.log
+          updateMessage("M.M.'s revive attempt failed! What a waste!"); // then updateMessage()
+
+          // Post-Attack Stack | refactor out eventually?
+          this.regenerateStamina(); // then regenerate stamina for the round
+          this.updateStats(); // then updateStats()
+          nextCharacter(); // then cycle to the next character
         }
       } else {
         // if current stamina < the required stamina for the skill...
-        // *** updateMessage() with `${this.name} doesn't have enough stamina! Try choosing a different action.`
+        // then updateMessage()
+        updateMessage(
+          `${this.name} doesn't have enough stamina! Try choosing a different action.`
+        );
       }
     } else {
       // if the character we're trying to target is actually still alive...
-      // *** updateMessage() with `Bloody brilliant – ${ally.name} doesn't need revived! Try choosing another teammate or command.`
+      // then updateMessage()
+      updateMessage(
+        `Bloody brilliant – ${healTarget.name} doesn't need revived! Try choosing another teammate or command.`
+      );
     }
   }
 }
@@ -293,14 +371,23 @@ class MM extends Humans {
 ///////////////////////////////////////////////////////////////////////////////////////
 class Butcher extends Humans {
   //Initialize constructor using super as a "function" to access parent prototype
-  constructor(name, health, maxHealth, stamina, maxStamina, accuracy) {
+  constructor(
+    name,
+    health,
+    maxHealth,
+    stamina,
+    maxStamina,
+    accuracy,
+    staminaRegenAmount
+  ) {
     super(
       (name = "Butcher"),
       (health = 800),
       (maxHealth = 800),
       (stamina = 500),
       (maxStamina = 500),
-      (accuracy = 0.7)
+      (accuracy = 0.7),
+      (staminaRegenAmount = 15)
     );
   }
 
@@ -328,22 +415,36 @@ class Butcher extends Humans {
 
     if (this.stamina >= staminaCost) {
       // if current stamina >= the required stamina for the attack...
-      if (checkIfHit() === true) {
+      if (checkIfHit(this) === true) {
         // if our attack successfully hits the enemy...
+        console.log("Success! Butcher landed his attack."); // then console.log
         this.stamina -= staminaCost; // then decrease current stamina by stamina cost
         opponent.health -= attackDamage; // then decrease the target's health by attack damage
-        // *** updateMessage() with `Butcher hit ${enemy.name} for ${attackDamage} damage!`
-        // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
-        // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+        // then updateMessage()
+        updateMessage(
+          `Butcher hit ${opponent.name} for ${attackDamage} damage!`
+        );
+
+        // Post-Attack Stack | refactor out eventually?
+        this.regenerateStamina(); // then regenerate stamina for the round
+        this.updateStats(); // then updateStats()
+        nextCharacter(); // then cycle to the next character
       } else {
         // if our attack missed the enemy...
-        // *** updateMessage() with "Butcher's attack missed!"
-        // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
-        // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+        console.log("Bummer! Butcher missed his attack."); // then console.log
+        updateMessage("Butcher's attack missed!"); // then updateMessage()
+
+        // Post-Attack Stack | refactor out eventually?
+        this.regenerateStamina(); // then regenerate stamina for the round
+        this.updateStats(); // then updateStats()
+        nextCharacter(); // then cycle to the next character
       }
     } else {
       // if current stamina < the required stamina for the attack...
-      // *** updateMessage() with `${this.name} doesn't have enough stamina! Try choosing a different action.`
+      // then updateMessage()
+      updateMessage(
+        `${this.name} doesn't have enough stamina! Try choosing a different action.`
+      );
     }
   }
 
@@ -355,22 +456,36 @@ class Butcher extends Humans {
 
     if (this.stamina >= staminaCost) {
       // if current stamina is >= the required stamina for the attack...
-      if (checkIfHit() === true) {
+      if (checkIfHit(this) === true) {
         // if our attack successfully hits the enemy...
+        console.log("Success! Butcher landed his attack."); // then console.log
         this.stamina -= staminaCost; // then decrease current stamina by stamina cost
         opponent.health -= attackDamage; // then decrease the target's health by attack damage
-        // *** updateMessage() with `Butcher hit ${enemy.name} for ${attackDamage} damage!`
-        // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
-        // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+        // then updateMessage()
+        updateMessage(
+          `Butcher hit ${opponent.name} for ${attackDamage} damage!`
+        );
+
+        // Post-Attack Stack | refactor out eventually?
+        this.regenerateStamina(); // then regenerate stamina for the round
+        this.updateStats(); // then updateStats()
+        nextCharacter(); // then cycle to the next character
       } else {
         // if our attack missed the enemy...
-        // *** updateMessage() with "Butcher's attack missed!"
-        // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
-        // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+        console.log("Bummer! Butcher missed his attack."); // then console.log
+        updateMessage("Butcher's attack missed!"); // then updateMessage()
+
+        // Post-Attack Stack | refactor out eventually?
+        this.regenerateStamina(); // then regenerate stamina for the round
+        this.updateStats(); // then updateStats()
+        nextCharacter(); // then cycle to the next character
       }
     } else {
       // if current stamina < the required stamina for the attack...
-      // *** updateMessage() with `${this.name} doesn't have enough stamina! Try choosing a different action.`
+      // then updateMessage
+      updateMessage(
+        `${this.name} doesn't have enough stamina! Try choosing a different action.`
+      );
     }
   }
 
@@ -382,22 +497,36 @@ class Butcher extends Humans {
 
     if (this.stamina >= staminaCost) {
       // if current stamina >= the required stamina for the attack...
-      if (checkIfHit() === true) {
+      if (checkIfHit(this) === true) {
         // if our attack successfully hits the enemy...
+        console.log("Success! Butcher landed his attack."); // then console.log
         this.stamina -= staminaCost; // then decrease current stamina by stamina cost
         opponent.health -= attackDamage; // then decrease the target's health by attack damage
-        // *** updateMessage() with `F*CKIN' DIABOLICAL, MATE. Butcher hit ${enemy.name} for ${attackDamage} damage!`
-        // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
-        // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+        // then updateMessage()
+        updateMessage(
+          `F*CKIN' DIABOLICAL, MATE. Butcher hit ${opponent.name} for ${attackDamage} damage!`
+        );
+
+        // Post-Attack Stack | refactor out eventually?
+        this.regenerateStamina(); // then regenerate stamina for the round
+        this.updateStats(); // then updateStats()
+        nextCharacter(); // then cycle to the next character
       } else {
         // if our attack missed the enemy...
-        // *** updateMessage() with "Bollocks, Butcher's attack missed!"
-        // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
-        // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+        console.log("Bummer! Butcher missed his attack."); // then console.log
+        updateMessage("Bollocks, Butcher's attack missed!"); // then updateMessage()
+
+        // Post-Attack Stack | refactor out eventually?
+        this.regenerateStamina(); // then regenerate stamina for the round
+        this.updateStats(); // then updateStats()
+        nextCharacter(); // then cycle to the next character
       }
     } else {
       // if current stamina < the required stamina for the attack...
-      // *** updateMessage() with `${this.name} doesn't have enough stamina! Try choosing a different action.`
+      // then updateMessage()
+      updateMessage(
+        `${this.name} doesn't have enough stamina! Try choosing a different action.`
+      );
     }
   }
 }
@@ -409,14 +538,23 @@ class Butcher extends Humans {
 ///////////////////////////////////////////////////////////////////////////////////////
 class Hughie extends Humans {
   //Initialize constructor using super as a "function" to access parent prototype
-  constructor(name, health, maxHealth, stamina, maxStamina, accuracy) {
+  constructor(
+    name,
+    health,
+    maxHealth,
+    stamina,
+    maxStamina,
+    accuracy,
+    staminaRegenAmount
+  ) {
     super(
       (name = "Hughie"),
       (health = 500),
       (maxHealth = 500),
       (stamina = 900),
       (maxStamina = 900),
-      (accuracy = 0.95)
+      (accuracy = 0.95),
+      (staminaRegenAmount = 15)
     );
   }
 
@@ -444,58 +582,95 @@ class Hughie extends Humans {
 
     if (this.stamina >= staminaCost) {
       // if current stamina is >= the required stamina for the skill...
-      if (checkIfHit() === true) {
+      if (checkIfHit(this) === true) {
         // if our action succeeded...
+        console.log("Success! Hughie landed his action."); // then console.log
         this.stamina -= staminaCost; // then decrease current stamina by stamina cost
         opponent.health -= attackDamage; // then decrease target's health by attack damage
         if (opponent.name === "Translucent") {
           // if target's name is Translucent...
           translucentConvoCounter = true; // then set global tracker to true
-          // *** updateMessage() with "He's like a turtle: hard exterior, but his insides are still soft... Get creative."
+          // then updateMessage()
+          updateMessage(
+            "He's like a turtle: hard exterior, but his insides are still soft... Get creative."
+          );
         } else if (opponent.name === "The Deep") {
           // if target's name is The Deep...
-          // *** updateMessage() with "We're not even near the ocean — just shoot him!"
+          updateMessage("We're not even near the ocean — just shoot him!"); // then updateMessage()
         } else if (opponent.name === "A-Train") {
           // if target's name is A-Train...
-          // *** updateMessage() with "Compound-V is making him impossibly strong... but how much will his heart be able to take?"
+          // then updateMessage()
+          updateMessage(
+            "Compound-V is making him impossibly strong... but how much will his heart be able to take?"
+          );
         } else if (opponent.name === "Starlight") {
           // if target's name is Starlight...
-          // *** updateMessage() with "Starlight seems to have a soft-spot for Hughie... Maybe we should let him lean into his emotional personality?"
+          // then updateMessage()
+          updateMessage(
+            "Starlight seems to have a soft-spot for Hughie... Maybe we should let him lean into his emotional personality?"
+          );
         } else if (opponent.name === "Black Noir") {
           // if target's name is Black Noir...
           blackNoirConvoCounter = true; // then set global tracker to true
-          // *** updateMessage() with "Rumor has it that Black Noir has a peanut allergy... Just make sure you take his Epi-Pen."
+          // then updateMessage()
+          updateMessage(
+            "Rumor has it that Black Noir has a peanut allergy... Just make sure you take his Epi-Pen."
+          );
         } else if (opponent.name === "Lamplighter") {
           // if target's name is Lamplighter...
           lamplighterConvoCounter = true; // then set global tracker to true
-          // *** updateMessage() with "Ironically, Lamplighter's biggest weakness is fire... Frenchie might have an idea or two..."
+          // then updateMessage()
+          updateMessage(
+            "In the ultimate irony, Lamplighter's biggest weakness is fire... Frenchie might have an idea or two..."
+          );
         } else if (opponent.name === "Homelander") {
           // if target's name is Homelander...
           if (homelanderConvoCount === 0) {
             // if homelanderConvoCount is equal to the value of 0...
             homelanderConvoCount++; // then iterate the global counter
-            // *** updateMessage() with "Does this guy even have any weaknesses? I mean, we DO know that he can't see through zinc. Who knows if that's helpful..."
+            // then updateMessage()
+            updateMessage(
+              "Does this guy even have any weaknesses? I mean, we DO know that he can't see through zinc. Who knows if that's helpful..."
+            );
           } else if (homelanderConvoCount === 1) {
             // if homelanderConvoCount is equal to the value of 1...
             homelanderConvoCount++; // then iterate the global counter
-            // *** updateMessage() with "Okay, this is promising... Butcher's CIA contact mentioned something to him about sonic-sensitivity? That's all we've got."
+            // then updateMessage()
+            updateMessage(
+              "Okay, this is promising... Butcher's CIA contact mentioned something to him about sonic-sensitivity? That's all we've got."
+            );
           } else if (homelanderConvoCount > 1) {
             // if homelanderConvoCount is > the value of 1...
             homelanderConvoCount++; // then iterate the global counter | * note: we could probably omit this, but I kinda want to leave it there purely for the random easter eggs it could empower...
-            // *** updateMessage() with "FRENCHIE'S GOT IT! *THE* WEAPON. GO SEE WHAT HE'S INVENTED!!"
+            // then updateMessage()
+            updateMessage(
+              "FRENCHIE'S GOT IT! *THE* WEAPON. GO SEE WHAT HE'S INVENTED!!"
+            );
           }
         }
-        // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
-        // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+        // Post-Attack Stack | refactor out eventually?
+        this.regenerateStamina(); // then regenerate stamina for the round
+        this.updateStats(); // then updateStats()
+        nextCharacter(); // then cycle to the next character
       } else {
         // if our action "missed"...
-        // *** updateMessage() with "Missed? How in the hell did you miss?! Damnit Hughie..."
-        // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
-        // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+        console.log("Bummer! Hughie missed his action."); // then console.log
+        // then updateMessage()
+        updateMessage(
+          "Missed? How in the hell did you miss?! Damnit Hughie..."
+        );
+
+        // Post-Attack Stack | refactor out eventually?
+        this.regenerateStamina(); // then regenerate stamina for the round
+        this.updateStats(); // then updateStats()
+        nextCharacter(); // then cycle to the next character
       }
     } else {
       // if current stamina < the required stamina for the skill...
-      // *** updateMessage() with `${this.name} doesn't have enough stamina! Try choosing a different action.`
+      // then updateMessage()
+      updateMessage(
+        `${this.name} doesn't have enough stamina! Try choosing a different action.`
+      );
     }
   }
 
@@ -507,8 +682,10 @@ class Hughie extends Humans {
 
     if (this.stamina >= staminaCost) {
       // if current stamina >= the required stamina for the skill...
-      if (checkIfHit() === true) {
+      if (checkIfHit(this) === true) {
         // if our action succeeded...
+        console.log("Success! Hughie landed his heal."); // then console.log
+
         this.stamina -= staminaCost; // then decrease current stamina by stamina cost
         for (let member of theBoys) // for each member of The Boys in theBoys array...
           if (member.isDead() === false) {
@@ -524,18 +701,34 @@ class Hughie extends Humans {
             // if member is dead...
             return; // then return – cycle back through for loop | *** might need to be "continue"? making note now for future troubleshooting...
           }
-        // *** updateMessage() with "Now that is soul-soothing… the whole team feels revitalized!"
-        // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
-        // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+        // then updateMessage()
+        updateMessage(
+          "Now that is soul-soothing… the whole team feels revitalized!"
+        );
+
+        // Post-Attack Stack | refactor out eventually?
+        this.regenerateStamina(); // then regenerate stamina for the round
+        this.updateStats(); // then updateStats()
+        nextCharacter(); // then cycle to the next character
       } else {
         // if our action "missed"...
-        // *** updateMessage() with "Missed? How in the hell did you miss?! Damnit Hughie..."
-        // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
-        // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+        console.log("Bummer! Hughie missed his heal."); // then console.log
+        // then updateMessage()
+        updateMessage(
+          "Missed? How in the hell did you miss?! Damnit Hughie..."
+        );
+
+        // Post-Attack Stack | refactor out eventually?
+        this.regenerateStamina(); // then regenerate stamina for the round
+        this.updateStats(); // then updateStats()
+        nextCharacter(); // then cycle to the next character
       }
     } else {
       // if current stamina < the required stamina for the skill...
-      // *** updateMessage() with `${this.name} doesn't have enough stamina! Try choosing a different action.`
+      // then updateMessage()
+      updateMessage(
+        `${this.name} doesn't have enough stamina! Try choosing a different action.`
+      );
     }
   }
 
@@ -547,32 +740,56 @@ class Hughie extends Humans {
 
     if (this.stamina >= staminaCost) {
       // if current stamina >= the required stamina for the skill...
-      if (checkIfHit() === true) {
+      if (checkIfHit(this) === true) {
         // if our action succeeded...
+        console.log("Success! Hughie landed his action."); // then console.log
+
         this.stamina -= staminaCost; // then decrease current stamina by stamina cost
         if (opponent.name === "Starlight") {
           // if target name is Starlight...
-          // *** updateMessage() with`Annie! Listen to me: You're not like the rest of The Seven! Since when did "hopeful" and "naive" become the same thing? I know you are in this business to try to save the world.. We can help! Help us stop Homelander!`
-          // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
-          // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+          // then updateMessage()
+          updateMessage(
+            `Annie! Listen to me: You're not like the rest of The Seven! Since when did "hopeful" and "naive" become the same thing? I know you are in this business to try to save the world.. We can help! Help us stop Homelander!`
+          );
+
+          // Post-Attack Stack | refactor out eventually?
+          this.regenerateStamina(); // then regenerate stamina for the round
+          this.updateStats(); // then updateStats()
+          nextCharacter(); // then cycle to the next character
           // *** then battleEnd()
           // *** nextCutscene()
         } else {
           // if target name is anything other than Starlight...
           this.health -= attackDamage; // then decrease Hughie's current health by attack damage
-          // *** updateMessage() with "Hughie – in what world was that going to work? C'mon mate..."
-          // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
-          // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+          // then updateMessage()
+          updateMessage(
+            "Hughie – in what world was that going to work? Un-f*cking-believeable. C'mon mate..."
+          );
+
+          // Post-Attack Stack | refactor out eventually?
+          this.regenerateStamina(); // then regenerate stamina for the round
+          this.updateStats(); // then updateStats()
+          nextCharacter(); // then cycle to the next character
         }
       } else {
         // if our action "missed"...
-        // *** updateMessage() with "Missed? How in the hell did you miss?! Damnit Hughie..."
-        // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
-        // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+        console.log("Bummer! Hughie missed his action."); // then console.log
+        // then updateMessage()
+        updateMessage(
+          "Missed? How in the hell did you miss?! Damnit Hughie..."
+        );
+
+        // Post-Attack Stack | refactor out eventually?
+        this.regenerateStamina(); // then regenerate stamina for the round
+        this.updateStats(); // then updateStats()
+        nextCharacter(); // then cycle to the next character
       }
     } else {
       // if current stamina < the required stamina for the skill...
-      // *** updateMessage() with `${this.name} doesn't have enough stamina! Try choosing a different action.`
+      // then updateMessage()
+      updateMessage(
+        `${this.name} doesn't have enough stamina! Try choosing a different action.`
+      );
     }
   }
 }
@@ -583,14 +800,23 @@ class Hughie extends Humans {
 ///////////////////////////////////////////////////////////////////////////////////////
 class Frenchie extends Humans {
   //Initialize constructor using super as a "function" to access parent prototype
-  constructor(name, health, maxHealth, stamina, maxStamina, accuracy) {
+  constructor(
+    name,
+    health,
+    maxHealth,
+    stamina,
+    maxStamina,
+    accuracy,
+    staminaRegenAmount
+  ) {
     super(
       (name = "Frenchie"),
       (health = 800),
       (maxHealth = 800),
       (stamina = 400),
       (maxStamina = 400),
-      (accuracy = 0.8)
+      (accuracy = 0.8),
+      (staminaRegenAmount = 15)
     );
   }
 
@@ -618,57 +844,88 @@ class Frenchie extends Humans {
 
     if (this.stamina >= staminaCost) {
       // if current stamina is >= the required stamina for the attack...
-      if (checkIfHit === true) {
+      if (checkIfHit(this) === true) {
         // if our attack successfully hits the enemy...
+        console.log("Success! Frenchie landed his attack."); // then console.log
         this.stamina -= staminaCost; // then decrease current stamina by stamina cost
         opponent.health -= attackDamage; // then decrease target's health by attack damage
-        // *** updateMessage() with `Frenchie hit ${enemy.name} for ${attackDamage} damage!`
-        // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
-        // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+        // then updateMessage()
+        updateMessage(
+          `Frenchie hit ${opponent.name} for ${attackDamage} damage!`
+        );
+
+        // Post-Attack Stack | refactor out eventually?
+        this.regenerateStamina(); // then regenerate stamina for the round
+        this.updateStats(); // then updateStats()
+        nextCharacter(); // then cycle to the next character
       } else {
-        // if our attack missed the enemy...
-        // *** updateMessage() with `Zut-alors! Frenchie's attack missed...`
-        // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
-        // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+        console.log("Bummer! Frenchie missed his attack."); // then console.log
+        updateMessage(`Zut-alors! Frenchie's attack missed...`); // then updateMessage()
+
+        // Post-Attack Stack | refactor out eventually?
+        this.regenerateStamina(); // then regenerate stamina for the round
+        this.updateStats(); // then updateStats()
+        nextCharacter(); // then cycle to the next character
       }
     } else {
       // if current stamina is < the required stamina for the attack...
-      // *** updateMessage() with `${this.name} doesn't have enough stamina! Try choosing a different action.`
+      // then updateMessage()
+      updateMessage(
+        `${this.name} doesn't have enough stamina! Try choosing a different action.`
+      );
     }
   }
 
   ////// IMPROVISED EXPLOSIVES – Chemical engineering in the modern world. Damage++, Stamina--
   ///////////////////////////////////////////////////////////////////////////////////////
   improvisedExplosives() {
-    let staminaCost = 25; // bind temporary variable staminaCost to this attack
+    let staminaCost = 40; // bind temporary variable staminaCost to this attack
     let attackDamage = 135; // bind temporary variable attackDamage to this attack
 
     if (this.stamina >= staminaCost) {
       // if current stamina >= the required stamina for the attack...
-      if (checkIfHit() === true) {
+      if (checkIfHit(this) === true) {
         // if our attack successfully hits the enemy...
+        console.log("Success! Frenchie landed his attack."); // then console.log
         this.stamina -= staminaCost; // then decrease current stamina by stamina cost
         if (
           opponent.name === "Translucent" &&
           translucentConvoCounter === true
         ) {
           // if target's name is Translucent AND Hughie has investigated Translucent's weakness...
-          // *** updateMessage() "Frenchie did you just... put a bomb... in-.. inside of him?.. F*ck me, mate... That's bloody brilliant."
+          // then updateMessage()
+          updateMessage(
+            "Frenchie did you just... put a bomb... in-.. inside of him?.. F*ck me, mate... That's bloody brilliant."
+          );
+          //MAY need post attack stack here..?
           // *** battleEnd()
           // *** nextCutscene()
         } else {
           // if our target is anyone other than Translucent, AND/OR Hughie hasn't revealed Translucent's weakness yet.
           opponent.health -= attackDamage; // then decrease target's health by attack damage
         }
+
+        // Post-Attack Stack | refactor out eventually?
+        this.regenerateStamina(); // then regenerate stamina for the round
+        this.updateStats(); // then updateStats()
+        nextCharacter(); // then cycle to the next character
       } else {
         // if our attack missed the enemy...
-        // *** updateMessage() with `Zut-alors! Frenchie's attack missed...`
-        // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
-        // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+        console.log("Bummer! Frenchie missed his attack."); // then console.log
+        // then updateMessage()
+        updateMessage(`Zut-alors! Frenchie's attack missed...`);
+
+        // Post-Attack Stack | refactor out eventually?
+        this.regenerateStamina(); // then regenerate stamina for the round
+        this.updateStats(); // then updateStats()
+        nextCharacter(); // then cycle to the next character
       }
     } else {
       // if current stamina < the required stamina for the attack...
-      // *** updateMessage() with `${this.name} doesn't have enough stamina! Try choosing a different action.`
+      // then updateMessage()
+      updateMessage(
+        `${this.name} doesn't have enough stamina! Try choosing a different action.`
+      );
     }
   }
 
@@ -683,13 +940,18 @@ class Frenchie extends Humans {
 
     if (this.stamina >= staminaCost) {
       //if current stamina >= the required stamina for the attack...
-      if (checkIfHit() === true) {
+      if (checkIfHit(this) === true) {
         // if our attack successfully hits the enemy...
+        console.log("Success! Frenchie landed his attack."); // then console.log
+
         this.stamina -= -staminaCost; // then decrease current stamina by stamina cost
         if (opponent.name === "Black Noir" && blackNoirConvoCounter === true) {
           // if target's name is Black Noir AND Hughie has investigated Black Noir's weakness...
           opponent.health -= modifiedDamage; // then decrease target's health by the value of modifiedDamage
-          // *** updateMessage() with `Frenchie! Was that a... PB&J? You just threw a PB&J? *Surprisingly effective!* Black Noir took ${modifiedDamage} damage! Guess that nut allergy was serious...`
+          // then updateMessage()
+          updateMessage(
+            `Frenchie! Was that a... PB&J? You just threw a PB&J? *Surprisingly effective!* Black Noir took ${modifiedDamage} damage! Guess that nut allergy was serious...`
+          );
         }
         if (
           opponent.name === "Lamplighter" &&
@@ -697,22 +959,39 @@ class Frenchie extends Humans {
         ) {
           // if target's name is Lamplighter AND Hughie has investigated Lamplighter's weakness...
           opponent.health -= modifiedDamage; // then decrease target's health by the value of modifiedDamage
-          // *** updateMessage() with `Bonjour, mon amie.. Let's see how much you truly like fire... *Surprisingly effective!* Lamplighter took ${modifiedDamage} damage from Frenchie's molotov cocktail!`
+          // then updateMessage()
+          updateMessage(
+            `Bonjour, mon amie.. Let us see how much you truly like fire... *Surprisingly effective!* Lamplighter took ${modifiedDamage} damage from Frenchie's molotov cocktail!`
+          );
         }
         if (opponent.name === "Homelander" && homelanderConvoCount > 1) {
           // if target's name is Homelander AND Hughie has investigated Homelander's multiple weaknesses...
           opponent.health -= modifiedDamage * homelanderBonus; // then decrease target's health by the value of (modifiedDamage * homelanderBonus)
-          // *** updateMessage() with `Salut. Let's see how much targeted sonic-energy your ears can take... *Surprisingly effective!* Homelander took ${modifiedDamage} damage from Frenchie's sonic emitter!`
+          // then updateMessage()
+          updateMessage(
+            `Salut. Let's see how much targeted sonic-energy your ears can take... *Surprisingly effective!* Homelander took ${modifiedDamage} damage from Frenchie's sonic emitter!`
+          );
         }
+
+        // Post-Attack Stack | refactor out eventually?
+        this.regenerateStamina(); // then regenerate stamina for the round
+        this.updateStats(); // then updateStats()
+        nextCharacter(); // then cycle to the next character
       } else {
         // if our attack missed the enemy...
-        // *** updateMessage() with `Zut-alors! Frenchie's attack missed...`
+        console.log("Bummer! Frenchie missed his attack."); // then console.log
+        updateMessage(`Zut-alors! Frenchie's attack missed...`); // then updateMessage()
       }
-      // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
-      // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+      // Post-Attack Stack | refactor out eventually?
+      this.regenerateStamina(); // then regenerate stamina for the round
+      this.updateStats(); // then updateStats()
+      nextCharacter(); // then cycle to the next character
     } else {
       // if current stamina < the required stamina for the attack...
-      // *** updateMessage() with `${this.name} doesn't have enough stamina! Try choosing a different action.`
+      // then updateMessage()
+      updateMessage(
+        `${this.name} doesn't have enough stamina! Try choosing a different action.`
+      );
     }
   }
 }
@@ -786,7 +1065,10 @@ class Supes {
   */
   updateStats() {
     // update current HP and SP in the DOM
-    opponentStats.innerHTML = `<h2>${opponent.name.toUpperCase} <span>HP ${this.health} / ${this.maxHealth}</span><span>SP ${this.stamina} / ${this.maxStamina}</span></h2>`;
+    opponentStats.innerHTML = `<h2>${opponent.name.toUpperCase()} 
+    <br />
+    <br />
+    <span>HP ${this.health} / ${this.maxHealth}</span></h2>`;
   }
 }
 
@@ -798,6 +1080,12 @@ class Translucent extends Supes {
   constructor(name, health, maxHealth) {
     super((name = "Translucent"), (health = 800), (maxHealth = 800));
   }
+
+  //////////////////////////////////////////////////
+  //////                                      //////
+  //////           -----ATTACKS-----          //////
+  //////                                      //////
+  //////////////////////////////////////////////////
 
   ////// SHADOW STRIKE – A master of stealth, Translucent strikes from the shadows. Damage+ to 1 random target.
   ///////////////////////////////////////////////////////////////////////////////////////
@@ -820,12 +1108,15 @@ class Translucent extends Supes {
           validTargets.push(member); // then push member into validTargets array
         }
       }
+      console.log("Shit... Translucent's attack landed."); // then console.log
       let selectedTarget = validTargets[randomIndex]; // then set selectedTarget to a random, living member of The Boys
       selectedTarget.health -= attackDamage; // then deal damage to that randomly selected, living member of The Boys
       // *** updateMessage() with `Translucent struck from the shadows! ${selectedTarget.name} took ${attackDamage} damage!`
       // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
     } else {
       // if attack misses entirely...
+      console.log("Nice... Translucent's attack missed."); // then console.log
+
       // *** updateMessage() with `${this.name}'s attack missed!`
       // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
     }
@@ -850,6 +1141,7 @@ class Translucent extends Supes {
           validTargets.push(member); // then push member into validTargets array
         }
       }
+      console.log("Shit... Translucent's attack landed."); // then console.log
       // after our validTargets array has been propagated with our living members of The Boys...
       let selectedTarget = validTargets[randomIndex]; // then set selectedTarget to a random, living member of The Boys
       selectedTarget.health -= attackDamage; // then deal damage to that randomly selected, living member of The Boys
@@ -857,6 +1149,8 @@ class Translucent extends Supes {
       // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
     } else {
       // if attack misses entirely...
+      console.log("Nice... Translucent's attack missed."); // then console.log
+
       // *** updateMessage() with `${this.name}'s attack missed!`
       // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
     }
@@ -870,6 +1164,8 @@ class Translucent extends Supes {
 
     if (Math.random() < healAccuracy) {
       // if heal successfully executes...
+      console.log("Shit... Translucent healed himself."); // then console.log
+
       if (this.health < this.maxHealth - healAmount) {
         // if current health is < maxHealth minus heal amount...
         this.health += healAmount; // then increase current health by heal amount
@@ -882,6 +1178,8 @@ class Translucent extends Supes {
       }
     } else {
       // if heal "misses" entirely...
+      console.log("Nice... Translucent missed his heal."); // then console.log
+
       // *** updateMessage() with `Phew, ${this.name} failed to heal!`
       // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
     }
@@ -890,42 +1188,58 @@ class Translucent extends Supes {
   // Placeholder function that will select and execute one of Translucent's above actions.
   // Translucent Temperament: Egotistical, Predatory, Self-Involved | Focus on light attack, then heavy attack, then heal
   selectAttack() {
-    // CURRENT: 40% chance of shadowStrike || 35% chance of invisibleLurker || 25% chance of carbonRealignment
+    // CURRENT:
+    // chance of shadowStrike ==> | 40 % |
+    // chance of invisibleLurker ==> | 35 % |
+    // chance of carbonRealignment ==> | 25 % |
 
     let randomNum = Math.random(); // set temp variable equal to a random number between | 0 | and | limit 1 |
     if (randomNum < 0.25) {
       // if randomly generated value is less than | .25 |...
-      this.carbonRealignment(); // then select and execute carbonRealignment()
+      return this.carbonRealignment(); // then select and execute carbonRealignment()
     } else if (randomNum > 0.25 && randomNum < 0.61) {
       // if randomly generated value is between | .25 | and | ~.6 |...
-      this.invisibleLurker(); // then select and execute invisibleLurker()
+      return this.invisibleLurker(); // then select and execute invisibleLurker()
     } else {
       // if neither of the above if statements have been triggered, then the value of randomNum must be between | .61 | and limit | 1 |...
-      this.shadowStrike(); // then select and execute shadowStrike()
+      return this.shadowStrike(); // then select and execute shadowStrike()
     }
   }
 }
 
-////// Create class for The Deep (real name: Kevin Moskowitz | other alias: Lord of the Seven Seas)
+////// Create class for The Deep
+////// (real name: Kevin Moskowitz | other alias: Lord of the Seven Seas)
+///////////////////////////////////////////////////////////////////////////////////////
 class TheDeep extends Supes {
   // Initialize constructor using super as a "function" to access parent prototype
   constructor(name, health, maxHealth) {
     super((name = "The Deep"), (health = 1000), (maxHealth = 1000));
   }
-  ////// Luckily, Vought Tower's six-story aquatic exhibit is fresh-water; unfortunately, it's full of piranhas. Don't fall in.
-  ////// Summon scaly allies to fight by his side. Damage+ to entire team.
+
+  //////////////////////////////////////////////////
+  //////                                      //////
+  //////           -----ATTACKS-----          //////
+  //////                                      //////
+  //////////////////////////////////////////////////
+
+  ////// AQUATIC TELEPATHY – Luckily, Vought Tower's six-story aquatic exhibit is fresh-water; unfortunately, it's full of piranhas. Don't fall in. Summon scaly allies to fight by his side. Damage+ to entire team.
+  ///////////////////////////////////////////////////////////////////////////////////////
+
   aquaticTelepathy(goodGuys) {
     // Need a function to select every member of the team rather than just 1
     goodGuys.health -= 30;
     // *** updateMessage() with ...
   }
   // Body of man, spirit of shark. Shark strength. Damage++ to single member of The Boys.
+  ///////////////////////////////////////////////////////////////////////////////////////
+
   sharkStrength(goodGuy) {
     goodGuy.health -= 95;
     // *** updateMessage() with ...
   }
-  ////// It takes thick skin to swim in the Mariana Trench on the ocean floor. Regenerative skin helps. (fun-fact: MT has a water pressure of 8-tons-per-square-inch, OR 1,000x the standard atmospheric pressure at sea level)
-  ////// Just don't touch his gills. Heal+
+  ////// It takes thick skin to swim in the Mariana Trench on the ocean floor. Regenerative skin helps. (fun-fact: MT has a water pressure of 8-tons-per-square-inch, OR 1,000x the standard atmospheric pressure at sea level) Just don't touch his gills. Heal+
+  ///////////////////////////////////////////////////////////////////////////////////////
+
   secondSkin() {
     // to keep from over-healing...
     if (this.health < this.maxHealth - 250) {
@@ -949,6 +1263,13 @@ class ATrain extends Supes {
     this.power = 200; // A-Train is the only boss with a power property. Power is an attack damage modifier.
     this.heartBeat = 100; // Only a world-class ath-e-lete could bash heads in battle and maintain 100bpm...
   }
+
+  //////////////////////////////////////////////////
+  //////                                      //////
+  //////           -----ATTACKS-----          //////
+  //////                                      //////
+  //////////////////////////////////////////////////
+
   ////// Starlight shoots light and A-Train can dodge her attacks, ergo: he big-fast. Damage++ to single member of The Boys.
   speedOfLight(goodGuy) {
     goodGuy.health -= Math.floor(Math.random() * power) + 50; // returns a value on average, between 125 and 175 damage at base power of 200
@@ -985,6 +1306,13 @@ class Starlight extends Supes {
   constructor(name, health, maxHealth) {
     super((name = "Starlight"), (health = 1250), (maxHealth = 1250));
   }
+
+  //////////////////////////////////////////////////
+  //////                                      //////
+  //////           -----ATTACKS-----          //////
+  //////                                      //////
+  //////////////////////////////////////////////////
+
   ////// Iron-man-like energy blasts from the hands. Yikes. Damage++ to single member of The Boys
   energyProjection(goodGuy) {
     goodGuy.health -= 120;
@@ -1019,6 +1347,13 @@ class BlackNoir extends Supes {
   constructor(name, health, maxHealth) {
     super((name = "Black Noir"), (health = 2000), (maxHealth = 2000));
   }
+
+  //////////////////////////////////////////////////
+  //////                                      //////
+  //////           -----ATTACKS-----          //////
+  //////                                      //////
+  //////////////////////////////////////////////////
+
   ////// Whether used in close combat or from range, Black
   ////// Noir is a master of daggers. Damage + to all members of The Boys
   throwDaggers(goodGuys) {
@@ -1052,6 +1387,13 @@ class Lamplighter extends Supes {
   constructor(name, health, maxHealth) {
     super((name = "Lamplighter"), (health = 800), (maxHealth = 800));
   }
+
+  //////////////////////////////////////////////////
+  //////                                      //////
+  //////           -----ATTACKS-----          //////
+  //////                                      //////
+  //////////////////////////////////////////////////
+
   ////// Lamplighter uses his ability to control fire with his mind to create blasts
   ////// strong enough to melt holes in steel plates. Damage++ to a single member of The Boys
   pyrokinesis(goodGuy) {
@@ -1078,6 +1420,13 @@ class Homelander extends Supes {
   constructor(name, health, maxHealth) {
     super((name = "Homelander"), (health = 2000), (maxHealth = 2000));
   }
+
+  //////////////////////////////////////////////////
+  //////                                      //////
+  //////           -----ATTACKS-----          //////
+  //////                                      //////
+  //////////////////////////////////////////////////
+
   ////// Raised in a lab, Homelander was bred to be a weapon. Unfortunately, this means he doesn't
   ////// know how to process his emotions in a healthy way. When he get's angry, he acts out. Damage++
   bruteForce(goodGuy) {
@@ -1118,6 +1467,9 @@ const blackNoir = new BlackNoir(); // Create Black Noir object
 const lamplighter = new Lamplighter(); // Create Lamplighter object
 const homelander = new Homelander(); // Create Homelander object
 
+// * note  THIS LIVES HERE BECAUSE I'M PLAYING WITH ITS SCOPING
+let opponent = translucent; // hardcoding opponent for now... will later use a switch (I think..) to change opponent dependent on what level we're on
+
 // console.log(translucent);
 // console.log(theDeep);
 // console.log(aTrain);
@@ -1133,25 +1485,46 @@ const homelander = new Homelander(); // Create Homelander object
 // GAME LOGIC
 // ====================
 
-// *** Need to make sure to add a cached DOM node for message (.message class, likely? pop-out modal?)
-// const updateMessage = (text) => message.textContent = text;
+/*
+startGame()
+NEED IT TO...
+• update everyone's stats in the DOM
+• start our battle
 
+*/
 startGame = () => {
+  updateAllStats();
   initiateBattlePhase();
 };
+// END startGame()
 
 /*
-areWeDead() utilizes each member of The Boy's isDead() method in order
+updateAllStats() 
+• Compiles all of our individual updateStats 
+methods into one consolidated call
+*/
+updateAllStats = () => {
+  opponent.updateStats();
+  mothersMilk.updateStats();
+  butcher.updateStats();
+  hughie.updateStats();
+  frenchie.updateStats();
+};
+// END updateAllStats
+
+/*
+areWeDead() 
+• Utilizes each member of The Boy's isDead() method in order
 to determine whether if entire team is currently dead or not (will be part of a checkLoss()  )
 Dead ==> return true
 Alive ==> return false
 */
 areWeDead = () => {
   if (
-    MM.isDead() === true && // if M.M. is dead...
-    Butcher.isDead() === true && // AND Butcher is dead...
-    Hughie.isDead() === true && // AND Hughie is dead...
-    Frenchie.isDead() === true // AND Frenchie is dead, then...
+    mothersMilk.isDead() === true && // if M.M. is dead...
+    butcher.isDead() === true && // AND Butcher is dead...
+    hughie.isDead() === true && // AND Hughie is dead...
+    frenchie.isDead() === true // AND Frenchie is dead, then...
   ) {
     return true; // return true
   } else {
@@ -1162,7 +1535,16 @@ areWeDead = () => {
 // END areWeDead()
 
 /*
-areTheyDead() utilized each Supe's isDead() method in order to determine
+checkLoss();
+• LOSS functionality of the game
+use areWeDead()
+*/
+
+// END checkLoss()
+
+/*
+areTheyDead() 
+• Utilize each Supe's isDead() method in order to determine
 whether all enemies are currently dead or not (will be part of a checkWin()   )
 Dead ==> returns true
 Alive ==> returns false
@@ -1176,11 +1558,11 @@ areTheyDead = () => {
     return false;
   }
 };
-
-// selectedCharacter ==> used to determine what actions we can choose from. also gets added to a class that makes it visually stand out (physically move (transform: translate()) it out in front of the others)
+// END areTheyDead
 
 /*
-checkIfHit() determines if our currentlySelected member of The Boys
+checkIfHit() 
+• Determines if our currentlySelected member of The Boys
 is able to successfully complete their action or not.
 */
 const checkIfHit = (ally) => {
@@ -1271,61 +1653,59 @@ const nextCharacter = () => {
 initiateBattlePhase()
 Kicks-off core battle logic for Supe vs The Boys
 */
-const initiateBattlePhase = (opponent) => {
-  if (areTheyDead() === false && areWeDead === false) {
-    // if BOTH areTheyDead returns false AND areWeDead returns false... | ie ==> as long as the enemy is alive AND at least one of The Boys is alive...
+const initiateBattlePhase = () => {
+  if (areWeDead() === false) {
+    // if areWeDead returns false... | ie ==> as long as at least one of The Boys is alive...
     if (playerIndex === 0) {
       // if playerIndex is currently pointing at the value of | 0 |... | ie ==> if M.M. is the currentlySelected character...
-      if (MM.isDead() === false) {
+      if (mothersMilk.isDead() === false) {
         // if M.M. is alive... | * note: we're starting our battle phase with M.M., because he sits at theBoys[0] and is thus the default value that currentlySelected points to via playerIndex
         // *** not sure what to put here for the moment... | choosing an action at this point (***SHOULD***) will move us to the next step of Battle Phase
       } else {
         // if M.M. is dead...
         nextCharacter(); // then cycle to the next character
-        mothersMilk.updateStats(); // then update Butcher's stats in the DOM just in case
+        updateAllStats(); // then update everyone's stats in the DOM just in case
       }
     }
     if (playerIndex === 1) {
       // if playerIndex is currently pointing at the value of | 1 |... | ie ==> if Butcher is the currentlySelected character...
-      if (Butcher.isDead() === false) {
+      if (butcher.isDead() === false) {
         // if Butcher is alive...
         // *** not sure what to put here for the moment... | choosing an action at this point (***SHOULD***) will move us to the next step of Battle Phase
       } else {
         // if Butcher is dead...
         nextCharacter(); // then cycle to the next character
-        butcher.updateStats(); // then update Butcher's stats in the DOM just in case
+        updateAllStats(); // then update everyone's stats in the DOM just in case
       }
     }
     if (playerIndex === 2) {
       // if playerIndex is currently pointing at the value of | 2 |... | ie ==> if Hughie is the currentlySelected character...
-      if (Hughie.isDead() === false) {
+      if (hughie.isDead() === false) {
         //if Hughie is alive...
         // *** not sure what to put here for the moment... | choosing an action at this point (***SHOULD***) will move us to the next step of Battle Phase
       } else {
         // if Hughie is dead...
         nextCharacter(); // then cycle to the next character
-        hughie.updateStats(); // then update Hughie's stats in the DOM just in case
+        updateAllStats(); // then update everyone's stats in the DOM just in case
       }
     }
     if (playerIndex === 3) {
       // if playerIndex is currently pointing at the value of | 3 |... | ie ==> if Frenchie is the currentlySelected character...
-      if (Frenchie.isDead() === false) {
+      if (frenchie.isDead() === false) {
         // if Frenchie is alive...
         // *** not sure what to put here for the moment... | choosing an action at this point (***SHOULD***) will move us to the next step of Battle Phase
       } else {
         // if Frenchie is dead...
         nextCharacter(); // then cycle to the next character
-        frenchie.updateStats(); // then update Frenchie's in the DOM stats just in case
+        updateAllStats(); // then update everyone's stats in the DOM just in case
       }
     }
     if (playerIndex === 4) {
+      // *** IDEA could pop a function here called initiateEnemyPhase or something like that | ==> and then use the if /else of that function as our battleWin() ???
       if (opponent.isDead() === false) {
         // if our current opponent is still alive...
         opponent.selectAttack(); // then have our opponent go through their select attack function ( cascades... included inside that <=== is target validation, target randomization, AND enemy attack choice randomization)
-        mothersMilk.updateStats(); // then update M.M's stats in the DOM in case he got attacked
-        butcher.updateStats(); // then update Butcher's stats in the DOM in case he got attacked
-        hughie.updateStats(); // then update Hughie's stats in the DOM in case he got attacked
-        frenchie.updateStats(); // then update Frenchie's stats in the DOM in case he got attacked
+        updateAllStats(); // then update everyone's stats in the DOM | anyone could have been a target
 
         nextCharacter(); // then cycle to the next character | * note: this cycle instance should always take us back to playerIndex of | 0 |
       } else {
@@ -1333,7 +1713,6 @@ const initiateBattlePhase = (opponent) => {
         // *** should I include endBattle and all that jazz here, and remove the areTheyDead() expression evaluation out from above^...?
       }
     }
-    // IS THIS WHERE opponent.selectAttack() should go?????
   } else {
     // if EITHER areTheyDead returns true OR areWeDead returns true...
     // endBattle()
@@ -1342,14 +1721,11 @@ const initiateBattlePhase = (opponent) => {
     // ...something like that...
   }
 };
-
 // END initiateBattlePhase()
 
 // ====================
 // GLOBAL VARIABLES
 // ====================
-
-let opponent = translucent; // hardcoding opponent for now... will later use a switch (I think..) to change opponent dependent on what level we're on
 
 /*
 *** currently trying to set up these action1,2,3 variables so that they I can dynamically control
@@ -1368,8 +1744,8 @@ const healTarget = theBoys[healIndex]; // Currently selected heal target, select
 // *** switch / case instead???
 if (currentlySelected === theBoys[0]) {
   action1 = mothersMilk.tacticalStrike();
-  action2 = mothersMilk.fieldMedic(healTarget);
-  action3 = mothersMilk.battlefieldTriage(healTarget);
+  action2 = mothersMilk.fieldMedic();
+  action3 = mothersMilk.battlefieldTriage();
 } else if (currentlySelected === theBoys[1]) {
   action1 = butcher.giftedMarksman();
   action2 = butcher.brutalize();
@@ -1432,6 +1808,31 @@ actionButton1.addEventListener("click", action1);
 actionButton2.addEventListener("click", action2);
 actionButton3.addEventListener("click", action3);
 
+healButton1.addEventListener("click", () => {
+  healIndex = 0;
+});
+
+healButton2.addEventListener("click", () => {
+  healIndex = 1;
+});
+
+healButton3.addEventListener("click", () => {
+  healIndex = 2;
+});
+
+healButton4.addEventListener("click", () => {
+  healIndex = 3;
+});
+
 /* MODALS */
+
+// Get Started button found on Welcome Modal
+getStarted.addEventListener("click", () => {
+  startGame();
+  toggleModal();
+});
+
+// Add clearMessage() to Message Modal
+message.addEventListener("click", clearMessage());
 
 /* ON-HOVER */

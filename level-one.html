@@ -54,9 +54,14 @@
           <button id="btn-action-1">ACTION 1</button>
           <button id="btn-action-2">ACTION 2</button>
           <button id="btn-action-3">ACTION 3</button>
+          <br />
+          <button id="btn-heal-1">M</button>
+          <button id="btn-heal-2">B</button>
+          <button id="btn-heal-3">H</button>
+          <button id="btn-heal-4">F</button>
           <!-- 
             CIRCLE BACK AND ADD HEAL-TARGETING WHEN YOU ADD YOUR DOM MANIPULATION 
-             * really just a series of 4 small buttons that, when clicked, will adjust a global variable
+             * really just a series of 3 small buttons that, when clicked, will adjust a global variable
              that selects one of The Boys via referencing their index in theBoys array
           -->
         </div>
@@ -87,5 +92,26 @@
         </div>
       </div>
     </footer>
+
+    <!--    Welcome Modal    -->
+    <div class="modal ff-style" id="welcome-modal">
+      <div class="rules">
+        <h3>The Rules:</h3>
+        <p>
+          <!-- Placeholder messages for now. Circle back Post-MVP -->
+          Do you have what it takes to make it to the top of Vought Tower? The
+          mightiest Supes in the world stand between you and... what is it
+          you're searching for... Glory?
+        </p>
+        <!-- Placeholder messages for now. Circle back Post-MVP -->
+        <p>Defeat all members of The Seven in order to emerge victorious!</p>
+        <button class="get-started" id="get-started">ENTER VOUGHT TOWER</button>
+      </div>
+    </div>
+
+    <!--    Message Modal    -->
+    <div class="modal ff-style closed" id="message-modal">
+      <h3></h3>
+    </div>
   </body>
 </html>
