@@ -22,6 +22,10 @@ body {
   padding-top: 250px;
 }
 
+#bad-guy-1 > img {
+  height: 150px;
+}
+
 .good-guy-container {
   position: absolute;
   width: 40vw;
@@ -30,13 +34,13 @@ body {
 
 #good-guy-1 {
   position: relative;
-  padding: 215px 100px 0px 0px;
+  padding: 135px 100px 0px 0px;
   margin-right: 20px;
 }
 
-/* #good-guy-1 > img {
-  margin-right: 50px;
-} */
+#good-guy-1 > img {
+  height: 100px;
+}
 
 #good-guy-2 {
   position: relative;
@@ -44,28 +48,28 @@ body {
   margin-right: 20px;
 }
 
-/* #good-guy-2 > img {
-  margin-right: 50px;
-} */
+#good-guy-2 > img {
+  height: 100px;
+}
 
 #good-guy-3 {
   position: relative;
-  padding: 15px 150px 0px 0px;
+  padding: 15px 125px 0px 0px;
   margin-right: 20px;
 }
 
-/* #good-guy-3 > img {
-  margin-right: 50px;
-} */
+#good-guy-3 > img {
+  height: 100px;
+}
 
 #good-guy-4 {
   position: relative;
-  padding: 15px 175px 0px 0px;
+  padding: 15px 125px 0px 0px;
 }
 
-/* #good-guy-4 > img {
-  margin-right: 50px;
-} */
+#good-guy-4 > img {
+  height: 100px;
+}
 
 footer {
   position: fixed;
@@ -98,9 +102,6 @@ footer {
   text-align: center;
 }
 
-.player-action-container > button {
-}
-
 #btn-action-1 {
   min-width: 60%;
   padding: 5px 0px 5px 0px;
@@ -124,7 +125,7 @@ footer {
 
 .player-stats-container {
   width: 55%;
-  min-width: 700px;
+  min-width: 710px;
   height: 175px;
   margin: 0 3px 0 3px;
 }
@@ -148,7 +149,8 @@ footer {
   padding-left: 75px;
 }
 
-div.ff-style {
+/* OPTION 1 - CLASSIC 8-BIT FF COLORS */
+/* div.ff-style {
   box-sizing: border-box;
   border: solid 2px #424542;
   box-shadow: 2px 2px #e7dfe7, -2px -2px #e7dfe7, 2px -2px #e7dfe7,
@@ -169,6 +171,34 @@ div.ff-style {
   background: -ms-linear-gradient(top, #04009d 0%, #06004d 100%);
   background: linear-gradient(to bottom, #04009d 0%, #06004d 100%);
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#04009d', endColorstr='#06004d',GradientType=0 );
+
+  -webkit-border-radius: 7px;
+  -moz-border-radius: 7px;
+  border-radius: 7px;
+} */
+
+/* OPTION 2 - CUSTOM 8-BIT THE BOYS COLORS */
+div.ff-style {
+  box-sizing: border-box;
+  border: solid 2px #424542;
+  box-shadow: 2px 2px #e7dfe7, -2px -2px #e7dfe7, 2px -2px #e7dfe7,
+    -2px 2px #e7dfe7, 0 -3px #9c9a9c, -3px 0 #7b757b, 0 3px #424542;
+  padding: 10px 10px;
+
+  background: #666666;
+  background: -moz-linear-gradient(top, #666666 0%, #232323 100%);
+  background: -webkit-gradient(
+    linear,
+    left top,
+    left bottom,
+    color-stop(0%, #666666),
+    color-stop(100%, #232323)
+  );
+  background: -webkit-linear-gradient(top, #666666 0%, #232323 100%);
+  background: -o-linear-gradient(top, #666666 0%, #232323 100%);
+  background: -ms-linear-gradient(top, #666666 0%, #232323 100%);
+  background: linear-gradient(to bottom, #666666 0%, #232323 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#666666', endColorstr='#232323',GradientType=0 );
 
   -webkit-border-radius: 7px;
   -moz-border-radius: 7px;

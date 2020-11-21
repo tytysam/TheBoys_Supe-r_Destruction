@@ -1,26 +1,26 @@
-// ===================
-// The Boys - Supe-r Destruction?
-// OR
-// Final Fantasy XXIIXV
-// OR
-// BATTLE GAME FIGHT.
-// ===================
-
-// =======================================================================================
+/////////////////////////////////////////////////////////////////////////////
+//////////////////                                         //////////////////
+//////////////////     THE BOYS  –  SUPE-R DESTRUCTION     //////////////////
+//////////////////                                         //////////////////
+/////////////////////////////////////////////////////////////////////////////
+/////////////////        a game by tyler samuelson        ///////////////////
+/////////////////////////////////////////////////////////////////////////////
 
 // ==========================
-// CIRCLE-BACK-TO LIST:
+// CIRCLE-BACK-TO-BONUS LIST:
 // ==========================
 // • Choose your team of 4 from a larger pool of heroes...
 // • More unique stats + moves for each character
 // • Work on difficulty of game... Get it working first though!
 // • Multiple difficulty levels? (ie, Easy = 3 enemies/floors/battles, Medium = 5 enemies/floors/battles, Hard = all 7 enemies/floors/battles)
 // • Ability for characters to utilize a shared item pool..?
+
 // • ANIMATIONS:
 ////--> Attack animations (One general, one healing, and a few unique to common attacks like The Boys' specials?)
 ////--> Add a class toggle that visually distinguishes the "current" character from the others (shifts them further in-screen like in FF + highlight their name?) (ie -> selectedChar function that wraps your player move-selection function... )
 ////--> Cutscenes: Slide in each character card (full-width container, fixed-toward-bottom for Boys, fixed-toward-top for Supes; 8bit images to left for Boys, to right for Supes; commentary text opposite 8bit image)
 ////-->
+
 // • ADDITIONAL GRAPHICS:
 ////-->
 ////-->
@@ -29,19 +29,8 @@
 // =======================================================================================
 //  ===== DON'T FORGET ======
 // • NEED AN updateMessage() function to display text that I would have otherwise console.logged
-// • Create a goodGuys array so that enemy's can randomly target them
-// • Every method attached to a Supe will need its own accuracy calculation (each attack has a different hit %)
 // • Revisit ~all of the characters to thresh out their stats + methods further! (get it all working-ish first)
-// • Account for maxHealth and maxStamina in all functions (check your classes)
 // •
-
-// *** IDEAS
-// queueOfAttacks = array with each function selected by the player stored in it sequentially (* maybe give speed stats one day who knows).
-// after player selects all of the moves, we then execute the series of commands in this stack
-// after this stack in queueOfAttacks is executed, the enemy will select their move (* or before, in the case of A-Train?)
-// after the enemy selects their move, the enemy attack is immediately executed (* unless I make one battle a 2v4 at some point?)
-// *** queueOfAttacks could also be looked at from a different angle... we could create a function that... ugh. lost it.
-//
 
 // =======================================================================================
 
@@ -49,21 +38,32 @@
 // CACHED DOM NODES
 // ====================
 
-// =======================================================================================
+/* Stat Updates */
+const mmStats = document.getElementById("mm-stats");
+const butcherStats = document.getElementById("butcher-stats");
+const hughieStats = document.getElementById("hughie-stats");
+const frenchieStats = document.getElementById("frenchie-stats");
+const opponentStats = document.getElementById("opponent-stats");
 
-// ====================
-// GLOBAL VARIABLES
-// ====================
+/* Buttons */
+const actionButton1 = document.getElementById("btn-action-1");
+const actionButton2 = document.getElementById("btn-action-2");
+const actionButton3 = document.getElementById("btn-action-3");
 
-let playerIndex = 0; // Index counter - allows iteration and easier manipulation of members of The Boys
-let currentlySelected = theBoys[playerIndex]; // Currently selected member of The Boys
-
-let healIndex = 0; // Index counter - allows specific targeting of heal commands
-const healTarget = theBoys[healIndex]; // Currently selected heal target, selected from theBoys array
-
-const staminaRegenAmount = 15; // this variable controls how much stamina each of The Boys regenerate at the end of every round
-
-let homelanderConvoCount = 0; // global counter that affects conversation-tree with Hughie
+// Will-Need List...
+// ==> Action 1 Button
+// ==> Action 2 Button
+// ==> Action 3 Button
+// ==> Heal Target 1 Button
+// ==> Heal Target 2 Button
+// ==> Heal Target 3 Button
+//
+// Modals...
+// ==> pop-up that we can reference with our updateMessage() function...
+// ==> // ==> Action 1 Break-out
+// ==> // ==> Action 2 Break-out
+// ==> // ==> Action 3 Break-out
+//
 
 // =======================================================================================
 
@@ -136,10 +136,13 @@ class Humans {
       return this.health < 1; // then return false
     }
   }
+
   /*
    *** Thinking about including a saySomething() method that calls updateMessage() and does something else... May be unnecessary lol.
    */
 }
+
+const staminaRegenAmount = 15; // this variable controls how much stamina each of The Boys regenerate at the end of every round
 
 ///////////////////////////////////////////////////////////////////////////////////////
 ////// • Create Class for M.M. (Mother's Milk)
@@ -160,9 +163,25 @@ class MM extends Humans {
     );
   }
 
+  /*
+  updateStats()
+  • At the end of every round and enemy attack, this updateStats() method will
+  push stat updates for each character's Health Points and Stamina Points
+  */
+  updateStats() {
+    // update current HP and SP in the DOM
+    mmStats.innerHTML = `<h2>M.M. <span>HP ${this.health} / ${this.maxHealth}</span><span>SP ${this.stamina} / ${this.maxStamina}</span></h2>`;
+  }
+
+  //////////////////////////////////////////////////
+  //////                                      //////
+  //////           -----ATTACKS-----          //////
+  //////                                      //////
+  //////////////////////////////////////////////////
+
   ////// TACTICAL STRIKE – Basic attack on enemy. Damage+, Stamina-
   ///////////////////////////////////////////////////////////////////////////////////////
-  tacticalStrike(enemy) {
+  tacticalStrike() {
     // * note: mapping super to non-ES6 ==> MM.prototype.tacticalStrike = function() { return `${Humans.prototype."some-function".call(this)}`;} | in other words, the keyword super can also be used as an instance of our parent class to call Humans class-specific details | <== the super instance is ~basically ParentClassName.prototype.methodName.call(this,...)
 
     let staminaCost = 10; // bind temporary variable of staminaCost to this attack
@@ -173,19 +192,19 @@ class MM extends Humans {
       if (checkIfHit(this) === true) {
         // if our attack successfully hits the enemy...
         this.stamina -= staminaCost; // then decrease our stamina by stamina cost
-        enemy.health -= attackDamage; // then decrease the target's health by attack damage
+        opponent.health -= attackDamage; // then decrease the target's health by attack damage
         // *** updateMessage() with `M.M. landed a tactical strike on ${enemy.name} for ${attackDamage} damage!`
-        // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
-        // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+        this.regenerateStamina(); // then regenerate stamina for the round
+        nextCharacter(); // then cycle to the next character
       } else {
         // if our attack missed the enemy...
         // *** updateMessage() with "M.M.'s attack missed!"
-        // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
-        // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+        this.regenerateStamina(); // then regenerate stamina for the round
+        nextCharacter(); // then cycle to the next character
       }
     } else {
       // if our current stamina < the required stamina for this attack...
-      // *** updateMessage() with `You don't have enough stamina! Try choosing a different action.`
+      // *** updateMessage() with `${this.name} doesn't have enough stamina! Try choosing a different action.`
     }
   }
 
@@ -223,7 +242,7 @@ class MM extends Humans {
         }
       } else {
         // if current stamina < the required stamina for this skill...
-        // *** updateMessage() with `You don't have enough stamina! Try choosing a different action.`
+        // *** updateMessage() with `${this.name} doesn't have enough stamina! Try choosing a different action.`
       }
     } else {
       // if the character we're trying to target is dead...
@@ -258,7 +277,7 @@ class MM extends Humans {
         }
       } else {
         // if current stamina < the required stamina for the skill...
-        // *** updateMessage() with `You don't have enough stamina! Try choosing a different action.`
+        // *** updateMessage() with `${this.name} doesn't have enough stamina! Try choosing a different action.`
       }
     } else {
       // if the character we're trying to target is actually still alive...
@@ -285,9 +304,25 @@ class Butcher extends Humans {
     );
   }
 
+  /*
+  updateStats()
+  • At the end of every round and enemy attack, this updateStats() method will
+  push stat updates for each character's Health Points and Stamina Points
+  */
+  updateStats() {
+    // update current HP and SP in the DOM
+    butcherStats.innerHTML = `<h2>BUTCHER <span>HP ${this.health} / ${this.maxHealth}</span><span>SP ${this.stamina} / ${this.maxStamina}</span></h2>`;
+  }
+
+  //////////////////////////////////////////////////
+  //////                                      //////
+  //////           -----ATTACKS-----          //////
+  //////                                      //////
+  //////////////////////////////////////////////////
+
   ////// GIFTED MARKSMAN – Basic attack. Butcher should be our strongest character so, Damage+ means a little extra for him... Damage+, Stamina-
   ///////////////////////////////////////////////////////////////////////////////////////
-  giftedMarksman(enemy) {
+  giftedMarksman() {
     let staminaCost = 10; // bind temporary variable of staminaCost to this attack
     let attackDamage = 70; // bind temporary variable fo attackDamage to this attack
 
@@ -296,7 +331,7 @@ class Butcher extends Humans {
       if (checkIfHit() === true) {
         // if our attack successfully hits the enemy...
         this.stamina -= staminaCost; // then decrease current stamina by stamina cost
-        enemy.health -= attackDamage; // then decrease the target's health by attack damage
+        opponent.health -= attackDamage; // then decrease the target's health by attack damage
         // *** updateMessage() with `Butcher hit ${enemy.name} for ${attackDamage} damage!`
         // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
         // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
@@ -308,13 +343,13 @@ class Butcher extends Humans {
       }
     } else {
       // if current stamina < the required stamina for the attack...
-      // *** updateMessage() with `You don't have enough stamina! Try choosing a different action.`
+      // *** updateMessage() with `${this.name} doesn't have enough stamina! Try choosing a different action.`
     }
   }
 
   ////// BRUTALIZE – Medium attack. Mo' stamina mo' damage, baby. Damage++, Stamina--
   ///////////////////////////////////////////////////////////////////////////////////////
-  brutalize(enemy) {
+  brutalize() {
     let staminaCost = 25; // bind temporary variable of staminaCost to this attack
     let attackDamage = 135; // bind temporary variable of attackDamage to this attack
 
@@ -323,7 +358,7 @@ class Butcher extends Humans {
       if (checkIfHit() === true) {
         // if our attack successfully hits the enemy...
         this.stamina -= staminaCost; // then decrease current stamina by stamina cost
-        enemy.health -= attackDamage; // then decrease the target's health by attack damage
+        opponent.health -= attackDamage; // then decrease the target's health by attack damage
         // *** updateMessage() with `Butcher hit ${enemy.name} for ${attackDamage} damage!`
         // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
         // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
@@ -335,13 +370,13 @@ class Butcher extends Humans {
       }
     } else {
       // if current stamina < the required stamina for the attack...
-      // *** updateMessage() with `You don't have enough stamina! Try choosing a different action.`
+      // *** updateMessage() with `${this.name} doesn't have enough stamina! Try choosing a different action.`
     }
   }
 
   ////// *Special*: F*CKIN DIABOLICAL MATE – FOR A COST... Butcher can put his years in the British SAS to use eviscerating (*ouch*) his opponents. Damage+++, Stamina---
   ///////////////////////////////////////////////////////////////////////////////////////
-  diabolicalMate(enemy) {
+  diabolicalMate() {
     let staminaCost = 60; // bind temporary variable staminaCost to this attack
     let attackDamage = 200; // bind temporary variable attackDamage to this attack
 
@@ -350,7 +385,7 @@ class Butcher extends Humans {
       if (checkIfHit() === true) {
         // if our attack successfully hits the enemy...
         this.stamina -= staminaCost; // then decrease current stamina by stamina cost
-        enemy.health -= attackDamage; // then decrease the target's health by attack damage
+        opponent.health -= attackDamage; // then decrease the target's health by attack damage
         // *** updateMessage() with `F*CKIN' DIABOLICAL, MATE. Butcher hit ${enemy.name} for ${attackDamage} damage!`
         // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
         // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
@@ -362,7 +397,7 @@ class Butcher extends Humans {
       }
     } else {
       // if current stamina < the required stamina for the attack...
-      // *** updateMessage() with `You don't have enough stamina! Try choosing a different action.`
+      // *** updateMessage() with `${this.name} doesn't have enough stamina! Try choosing a different action.`
     }
   }
 }
@@ -385,9 +420,25 @@ class Hughie extends Humans {
     );
   }
 
+  /*
+  updateStats()
+  • At the end of every round and enemy attack, this updateStats() method will
+  push stat updates for each character's Health Points and Stamina Points
+  */
+  updateStats() {
+    // update current HP and SP in the DOM
+    hughieStats.innerHTML = `<h2>HUGHIE <span>HP ${this.health} / ${this.maxHealth}</span><span>SP ${this.stamina} / ${this.maxStamina}</span></h2>`;
+  }
+
+  //////////////////////////////////////////////////
+  //////                                      //////
+  //////           -----ATTACKS-----          //////
+  //////                                      //////
+  //////////////////////////////////////////////////
+
   ////// TACTICAL NOUS – Tactical skill that deals a small amount of damage AND reveals an enemy's weakness (if they have any!). Damage1/2+, Stamina--
   ///////////////////////////////////////////////////////////////////////////////////////
-  tacticalNous(enemy) {
+  tacticalNous() {
     let staminaCost = 20; // bind temporary variable staminaCost to this skill
     let attackDamage = 5; // bind temporary variable attackDamage to this skill
 
@@ -396,39 +447,42 @@ class Hughie extends Humans {
       if (checkIfHit() === true) {
         // if our action succeeded...
         this.stamina -= staminaCost; // then decrease current stamina by stamina cost
-        enemy.health -= attackDamage; // then decrease target's health by attack damage
-        if (enemy.name === "Translucent") {
+        opponent.health -= attackDamage; // then decrease target's health by attack damage
+        if (opponent.name === "Translucent") {
           // if target's name is Translucent...
+          translucentConvoCounter = true; // then set global tracker to true
           // *** updateMessage() with "He's like a turtle: hard exterior, but his insides are still soft... Get creative."
-        } else if (enemy.name === "The Deep") {
+        } else if (opponent.name === "The Deep") {
           // if target's name is The Deep...
           // *** updateMessage() with "We're not even near the ocean — just shoot him!"
-        } else if (enemy.name === "A-Train") {
+        } else if (opponent.name === "A-Train") {
           // if target's name is A-Train...
           // *** updateMessage() with "Compound-V is making him impossibly strong... but how much will his heart be able to take?"
-        } else if (enemy.name === "Starlight") {
+        } else if (opponent.name === "Starlight") {
           // if target's name is Starlight...
           // *** updateMessage() with "Starlight seems to have a soft-spot for Hughie... Maybe we should let him lean into his emotional personality?"
-        } else if (enemy.name === "Black Noir") {
+        } else if (opponent.name === "Black Noir") {
           // if target's name is Black Noir...
+          blackNoirConvoCounter = true; // then set global tracker to true
           // *** updateMessage() with "Rumor has it that Black Noir has a peanut allergy... Just make sure you take his Epi-Pen."
-        } else if (enemy.name === "Lamplighter") {
+        } else if (opponent.name === "Lamplighter") {
           // if target's name is Lamplighter...
+          lamplighterConvoCounter = true; // then set global tracker to true
           // *** updateMessage() with "Ironically, Lamplighter's biggest weakness is fire... Frenchie might have an idea or two..."
-        } else if (enemy.name === "Homelander") {
+        } else if (opponent.name === "Homelander") {
           // if target's name is Homelander...
           if (homelanderConvoCount === 0) {
             // if homelanderConvoCount is equal to the value of 0...
-            homelanderConvoCount++; // then iterate the counter
+            homelanderConvoCount++; // then iterate the global counter
             // *** updateMessage() with "Does this guy even have any weaknesses? I mean, we DO know that he can't see through zinc. Who knows if that's helpful..."
           } else if (homelanderConvoCount === 1) {
             // if homelanderConvoCount is equal to the value of 1...
-            homelanderConvoCount++; // then iterate the counter
+            homelanderConvoCount++; // then iterate the global counter
             // *** updateMessage() with "Okay, this is promising... Butcher's CIA contact mentioned something to him about sonic-sensitivity? That's all we've got."
           } else if (homelanderConvoCount > 1) {
             // if homelanderConvoCount is > the value of 1...
-            homelanderConvoCount++; // then iterate the counter | * note: we could probably omit this, but I kinda want to leave it there purely for the random easter eggs it could empower...
-            // *** updateMessage() with "FRENCHIE'S GOT IT *THE* WEAPON. GO SEE WHAT HE'S INVENTED!!"
+            homelanderConvoCount++; // then iterate the global counter | * note: we could probably omit this, but I kinda want to leave it there purely for the random easter eggs it could empower...
+            // *** updateMessage() with "FRENCHIE'S GOT IT! *THE* WEAPON. GO SEE WHAT HE'S INVENTED!!"
           }
         }
         // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
@@ -441,7 +495,7 @@ class Hughie extends Humans {
       }
     } else {
       // if current stamina < the required stamina for the skill...
-      // *** updateMessage() with `You don't have enough stamina! Try choosing a different action.`
+      // *** updateMessage() with `${this.name} doesn't have enough stamina! Try choosing a different action.`
     }
   }
 
@@ -481,13 +535,13 @@ class Hughie extends Humans {
       }
     } else {
       // if current stamina < the required stamina for the skill...
-      // *** updateMessage() with `You don't have enough stamina! Try choosing a different action.`
+      // *** updateMessage() with `${this.name} doesn't have enough stamina! Try choosing a different action.`
     }
   }
 
   ////// *Special*: LET'S TALK – FOR A COST... Mild-mannered and meek, Hughie believes anything can be worked through if you just talk about it. Let's see how it goes! Damage??, Stamina---
   ///////////////////////////////////////////////////////////////////////////////////////
-  letsTalk(enemy) {
+  letsTalk() {
     let staminaCost = 50; // bind temporary variable staminaCost to this skill
     let attackDamage = 75; // bind temporary variable attackDamage to this skill | for this skill, attack damage = self-inflicted damage
 
@@ -496,9 +550,9 @@ class Hughie extends Humans {
       if (checkIfHit() === true) {
         // if our action succeeded...
         this.stamina -= staminaCost; // then decrease current stamina by stamina cost
-        if (enemy.name === "Starlight") {
+        if (opponent.name === "Starlight") {
           // if target name is Starlight...
-          // *** updateMessage() with "Missed? How in the hell did you miss?! Damnit Hughie..."
+          // *** updateMessage() with`Annie! Listen to me: You're not like the rest of The Seven! Since when did "hopeful" and "naive" become the same thing? I know you are in this business to try to save the world.. We can help! Help us stop Homelander!`
           // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
           // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
           // *** then battleEnd()
@@ -506,7 +560,7 @@ class Hughie extends Humans {
         } else {
           // if target name is anything other than Starlight...
           this.health -= attackDamage; // then decrease Hughie's current health by attack damage
-          // *** updateMessage() with "Hughie, in what world was that going to work? C'mon mate..."
+          // *** updateMessage() with "Hughie – in what world was that going to work? C'mon mate..."
           // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
           // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
         }
@@ -518,7 +572,7 @@ class Hughie extends Humans {
       }
     } else {
       // if current stamina < the required stamina for the skill...
-      // *** updateMessage() with `You don't have enough stamina! Try choosing a different action.`
+      // *** updateMessage() with `${this.name} doesn't have enough stamina! Try choosing a different action.`
     }
   }
 }
@@ -527,7 +581,6 @@ class Hughie extends Humans {
 ////// Equally adept with a blade as he is with a beaker, Frenchie likes playing mad-scientist, often
 ////// improvising his own weapons — you never know what he’ll come up with next.
 ///////////////////////////////////////////////////////////////////////////////////////
-
 class Frenchie extends Humans {
   //Initialize constructor using super as a "function" to access parent prototype
   constructor(name, health, maxHealth, stamina, maxStamina, accuracy) {
@@ -540,36 +593,127 @@ class Frenchie extends Humans {
       (accuracy = 0.8)
     );
   }
+
+  /*
+  updateStats()
+  • At the end of every round and enemy attack, this updateStats() method will
+  push stat updates for each character's Health Points and Stamina Points
+  */
+  updateStats() {
+    // update current HP and SP in the DOM
+    frenchieStats.innerHTML = `<h2>FRENCHIE <span>HP ${this.health} / ${this.maxHealth}</span><span>SP ${this.stamina} / ${this.maxStamina}</span></h2>`;
+  }
+
+  //////////////////////////////////////////////////
+  //////                                      //////
+  //////           -----ATTACKS-----          //////
+  //////                                      //////
+  //////////////////////////////////////////////////
+
   ////// GUN RUNNER – Buy, sell, build, shoot – c'est vrai: Frenchie knows his way around guns. Basic attack. Damage+, Stamina-
   ///////////////////////////////////////////////////////////////////////////////////////
+  gunRunner() {
+    let staminaCost = 10; // bind temporary variable staminaCost to this attack
+    let attackDamage = 55; // bind temporary variable attackDamage to this attack
 
-  gunRunner(enemy) {
-    this.stamina -= 10;
-    enemy.health -= 55;
-    // *** updateMessage() with ...
-  }
-  ////// IMPROVISED EXPLOSIVES – Chemical engineering in the modern world. Damage++, Stamina--
-  ///////////////////////////////////////////////////////////////////////////////////////
-
-  improvisedExplosives(enemy) {
-    if (enemy.name === "Translucent") {
-      this.stamina -= 25;
-      // *** battleEnd()
-      // *** updateMessage() "something something bomb in the butt"
-      // *** nextCutscene()
+    if (this.stamina >= staminaCost) {
+      // if current stamina is >= the required stamina for the attack...
+      if (checkIfHit === true) {
+        // if our attack successfully hits the enemy...
+        this.stamina -= staminaCost; // then decrease current stamina by stamina cost
+        opponent.health -= attackDamage; // then decrease target's health by attack damage
+        // *** updateMessage() with `Frenchie hit ${enemy.name} for ${attackDamage} damage!`
+        // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
+        // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+      } else {
+        // if our attack missed the enemy...
+        // *** updateMessage() with `Zut-alors! Frenchie's attack missed...`
+        // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
+        // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+      }
     } else {
-      this.stamina -= 25;
-      enemy.health -= 135;
-      // *** updateMessage() with ...
+      // if current stamina is < the required stamina for the attack...
+      // *** updateMessage() with `${this.name} doesn't have enough stamina! Try choosing a different action.`
     }
   }
+
+  ////// IMPROVISED EXPLOSIVES – Chemical engineering in the modern world. Damage++, Stamina--
+  ///////////////////////////////////////////////////////////////////////////////////////
+  improvisedExplosives() {
+    let staminaCost = 25; // bind temporary variable staminaCost to this attack
+    let attackDamage = 135; // bind temporary variable attackDamage to this attack
+
+    if (this.stamina >= staminaCost) {
+      // if current stamina >= the required stamina for the attack...
+      if (checkIfHit() === true) {
+        // if our attack successfully hits the enemy...
+        this.stamina -= staminaCost; // then decrease current stamina by stamina cost
+        if (
+          opponent.name === "Translucent" &&
+          translucentConvoCounter === true
+        ) {
+          // if target's name is Translucent AND Hughie has investigated Translucent's weakness...
+          // *** updateMessage() "Frenchie did you just... put a bomb... in-.. inside of him?.. F*ck me, mate... That's bloody brilliant."
+          // *** battleEnd()
+          // *** nextCutscene()
+        } else {
+          // if our target is anyone other than Translucent, AND/OR Hughie hasn't revealed Translucent's weakness yet.
+          opponent.health -= attackDamage; // then decrease target's health by attack damage
+        }
+      } else {
+        // if our attack missed the enemy...
+        // *** updateMessage() with `Zut-alors! Frenchie's attack missed...`
+        // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
+        // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+      }
+    } else {
+      // if current stamina < the required stamina for the attack...
+      // *** updateMessage() with `${this.name} doesn't have enough stamina! Try choosing a different action.`
+    }
+  }
+
   ////// *Special*: SPONTANEOUS INVENTOR – FOR A COST... Frenchie was originally recruited to The Boys thanks to his history of developing impressive gadgets and creative weapons. Notable creations include: • a sniper-rifle round coated in the same carbon metamaterial as Translucent's skin (status: failure) • a xanax-bomb meant to counter the rage-induced powers of the Supe, Behemoth (status: success) • **SPOILERS** inspired by a turtle and its shell, Frenchie builds a plastic bomb meant for Translucent's... insides. (status: null) Damage???, Stamina---
   ///////////////////////////////////////////////////////////////////////////////////////
-
   spontaneousInventor() {
-    // different outcomes dependent on battle/target...
-    // one of the main methods for taking advantage of weaknesses...
-    // *** updateMessage() with ...
+    let staminaCost = 100; // bind temporary variable staminaCost to this attack
+    let attackDamage = 100; // bind temporary variable attackDamage to this attack
+    let damageBonus = 5; // bind temporary variable damageBonus to this attack | Damage multiplier applied when we know a Supe's obvious weakness...
+    let modifiedDamage = attackDamage * damageBonus; // bind temporary variable modifiedDamage to this attack
+    let homelanderBonus = 3; // bind temporary variable homelanderBonus to this attack | if you jump through the hoops of setting it up, you can deal lots of damage to Homelander...
+
+    if (this.stamina >= staminaCost) {
+      //if current stamina >= the required stamina for the attack...
+      if (checkIfHit() === true) {
+        // if our attack successfully hits the enemy...
+        this.stamina -= -staminaCost; // then decrease current stamina by stamina cost
+        if (opponent.name === "Black Noir" && blackNoirConvoCounter === true) {
+          // if target's name is Black Noir AND Hughie has investigated Black Noir's weakness...
+          opponent.health -= modifiedDamage; // then decrease target's health by the value of modifiedDamage
+          // *** updateMessage() with `Frenchie! Was that a... PB&J? You just threw a PB&J? *Surprisingly effective!* Black Noir took ${modifiedDamage} damage! Guess that nut allergy was serious...`
+        }
+        if (
+          opponent.name === "Lamplighter" &&
+          lamplighterConvoCounter === true
+        ) {
+          // if target's name is Lamplighter AND Hughie has investigated Lamplighter's weakness...
+          opponent.health -= modifiedDamage; // then decrease target's health by the value of modifiedDamage
+          // *** updateMessage() with `Bonjour, mon amie.. Let's see how much you truly like fire... *Surprisingly effective!* Lamplighter took ${modifiedDamage} damage from Frenchie's molotov cocktail!`
+        }
+        if (opponent.name === "Homelander" && homelanderConvoCount > 1) {
+          // if target's name is Homelander AND Hughie has investigated Homelander's multiple weaknesses...
+          opponent.health -= modifiedDamage * homelanderBonus; // then decrease target's health by the value of (modifiedDamage * homelanderBonus)
+          // *** updateMessage() with `Salut. Let's see how much targeted sonic-energy your ears can take... *Surprisingly effective!* Homelander took ${modifiedDamage} damage from Frenchie's sonic emitter!`
+        }
+      } else {
+        // if our attack missed the enemy...
+        // *** updateMessage() with `Zut-alors! Frenchie's attack missed...`
+      }
+      // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
+      // *** INCLUDE ==> our regenerateStamina() either here or within this^ call???
+    } else {
+      // if current stamina < the required stamina for the attack...
+      // *** updateMessage() with `${this.name} doesn't have enough stamina! Try choosing a different action.`
+    }
   }
 }
 
@@ -595,6 +739,13 @@ theBoys.push(butcher);
 theBoys.push(hughie);
 theBoys.push(frenchie);
 
+let playerIndex = 0; // Index counter - allows iteration and easier manipulation of members of The Boys
+let currentlySelected = theBoys[playerIndex]; // Currently selected member of The Boys
+
+// ====================================================================================
+// ====================================================================================
+// ====================================================================================
+
 // ==========
 // The Supes
 // ==========
@@ -602,22 +753,22 @@ theBoys.push(frenchie);
 // by Vought International. They consist of seven superheroes; while The Seven oftentimes use
 // their powers to stop "crimes", their principal pursuit is typically fame and glory.
 
-// Humans class is the basis of our Supes characters
-// Contains Methods: isDead(), ...
+///////////////////////////////////////////////////////////////////////////////////////
+// Humans class is the basis of each of our Supes
+// Contains Methods: isDead(), updateStats()
+///////////////////////////////////////////////////////////////////////////////////////
 class Supes {
   constructor(name, health, maxHealth) {
     this.name = name; // Character Name
     this.health = health; // Current-Health Value
     this.maxHealth = maxHealth; // Maximum-Health Value
   }
-  /*
-  *** At the end of every enemy attack, we will use this isDead()
-  method as part of areTheyDead(), used to check to 
-  see which of The Supes are currently alive, and which 
-  are currently dead.
-  */
 
-  // Currently the below checks to see if a single enemy is dead or not. Returns boolean.
+  /*
+  isDead()
+  • At the end of each attack from The Boys, we will use this 
+  isDead() method to check to see if the current Supe is still alive.
+  */
   isDead() {
     // If current health < 1...
     if (this.health < 1) {
@@ -627,95 +778,130 @@ class Supes {
       return this.health < 1; // otherwise, return false
     }
   }
-  // *** Struggling with the targeting a bit... Do I need to just create a super robust
-  // function that houses each of these individual components since I'm running into scoping issues?
-  // * supeBattlePhase() ==> {check to make sure The Boys aren't all dead already
-  // ==> create an array of valid members of The Boys
-  // ==> iterate through all members of The Boys to see which are alive
-  // ==> add all living members of The Boys to a list of valid targets ( if not alive, log a message that member is dead)
-  // ==> have some sort of function that selects a random target from that list of valid targets
-  // ==> GIVE EACH SUPE their own selectAttack() that incorporates their unique hit % and unique attacks
-  // CALL supe's selectAttack}
-  getValidTargets() {
-    let validTargets = [];
-    for (let member of theBoys) {
-      if (member.isDead === false) {
-        validTargets.push(member);
-      }
-    }
+
+  /*
+  updateStats()
+  • At the end of every round and enemy attack, this updateStats() method will
+  push stat updates for current oponent's Health Points and Stamina Points
+  */
+  updateStats() {
+    // update current HP and SP in the DOM
+    opponentStats.innerHTML = `<h2>${opponent.name.toUpperCase} <span>HP ${this.health} / ${this.maxHealth}</span><span>SP ${this.stamina} / ${this.maxStamina}</span></h2>`;
   }
-  // *** Create a targeting function (  getValidTargets()?  ) that will create a temporary array of The Boys WHO ARE ALIVE.
-  // Create an array of valid player-controlled targets ( validTargets = [];)
-  // Iterate through all player-controlled units to see which are alive
-  // Add all living player-controlled units to a list of valid targets
-
-  // *** Utilize the above function in another function (  chooseRandomTarget()?   ) that will
-  // choose a valid, living character that we pushed into the validTargets array by selecting a random index
-  // *** Utilize the above function in another function (  chooseAllTarget()?    ) that will
-  // select all of the valid, living characters that we pushed into the validTargets array
-
-  // *** Will we need an executeAttack() method as well to then execute our attack on the
-  // target selected via one of the above methods...?
 }
 
 ////// Create a class for Translucent, The Seven's invisible supermember.
 ////// Bulletproof and pervy, how do The Boys stand a chance?
+///////////////////////////////////////////////////////////////////////////////////////
 class Translucent extends Supes {
   // Initialize constructor using super as a "function" to access parent prototype
   constructor(name, health, maxHealth) {
     super((name = "Translucent"), (health = 800), (maxHealth = 800));
   }
-  ////// A master of stealth, Translucent strikes from the shadows. Damage+ to 1 random target.
-  shadowStrike(goodGuy) {
-    // * CAN LIKELY REFACTOR EVERYTHING BELOW but let's leave it until after we get an MVP...
+
+  ////// SHADOW STRIKE – A master of stealth, Translucent strikes from the shadows. Damage+ to 1 random target.
+  ///////////////////////////////////////////////////////////////////////////////////////
+  shadowStrike() {
+    // * CAN LIKELY REFACTOR EVERYTHING BELOW but let's leave it until at least after we get an MVP...
+
+    let attackDamage = 55; // bind temporary variable attackDamage to this attack
+    let attackAccuracy = 0.9; // bind temporary variable attackAccuracy to this attack
+
+    // * note: keeping these temporary bindings here due to lexical scoping issues when I've tried refactoring them out... So for now, each Supe attack method will have them.
     let randomIndex = Math.floor(Math.random() * 4); // set randomIndex equal to a random value between 0 and 3
     let validTargets = []; // create a temporary array to house our valid, living members of The Boys
-    for (let member of theBoys) {
-      // for each member of The Boys in theBoys array
-      if (member.health > 1) {
-        // if member's health is > 1 | ie, if member is alive...
-        validTargets.push(member); // then push member into validTargets array
+
+    if (Math.random() < attackAccuracy) {
+      // if attack successfully hits its target...
+      for (let member of theBoys) {
+        // for each member of The Boys in theBoys array...
+        if (member.health > 1) {
+          // if member's health is > 1 | ie, if member is alive...
+          validTargets.push(member); // then push member into validTargets array
+        }
       }
+      let selectedTarget = validTargets[randomIndex]; // then set selectedTarget to a random, living member of The Boys
+      selectedTarget.health -= attackDamage; // then deal damage to that randomly selected, living member of The Boys
+      // *** updateMessage() with `Translucent struck from the shadows! ${selectedTarget.name} took ${attackDamage} damage!`
+      // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
+    } else {
+      // if attack misses entirely...
+      // *** updateMessage() with `${this.name}'s attack missed!`
+      // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
     }
-    let selectedTarget = validTargets[randomIndex]; // set selectedTarget to a random, living member of The Boys
-    selectedTarget.health -= 55; // deal damage to that randomly selected, living member of The Boys
-    // *** updateMessage() with ...
   }
-  ////// "No, I don't actually vanish. My skin turns into this carbon meta-material that bends
-  ////// the light.Like an invisibility cloak." Damage++
-  invisibleLurker(goodGuy) {
-    // write a function for randomly selecting one of the boys as target
-    // push good guys to an array and choose a random index to choose target
-    goodGuy.health -= 85;
-    // *** updateMessage() with ...
+
+  ////// INVISIBLE LURKER – "No, I don't actually vanish. My skin turns into this carbon meta-material that bends the light.Like an invisibility cloak." Damage++
+  ///////////////////////////////////////////////////////////////////////////////////////
+  invisibleLurker() {
+    let attackDamage = 85; // bind temporary variable attackDamage to this attack
+    let attackAccuracy = 0.8; // bind temporary variable attackAccuracy to this attack
+
+    // * note: keeping these temporary bindings here due to lexical scoping issues when I've tried refactoring them out... So for now, each Supe attack method will have them.
+    let randomIndex = Math.floor(Math.random() * 4); // set randomIndex equal to a random value between 0 and 3
+    let validTargets = []; // create a temporary array to house our valid, living members of The Boys
+
+    if (Math.random() < attackAccuracy) {
+      // if attack successfully hits its target...
+      for (let member of theBoys) {
+        // for each member of The Boys in theBoys array...
+        if (member.health > 1) {
+          // if member's health is > 1 | ie, if member is alive...
+          validTargets.push(member); // then push member into validTargets array
+        }
+      }
+      // after our validTargets array has been propagated with our living members of The Boys...
+      let selectedTarget = validTargets[randomIndex]; // then set selectedTarget to a random, living member of The Boys
+      selectedTarget.health -= attackDamage; // then deal damage to that randomly selected, living member of The Boys
+      // *** updateMessage() with `Translucent attack from nowhere! ${selectedTarget.name} took ${attackDamage} damage!`
+      // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
+    } else {
+      // if attack misses entirely...
+      // *** updateMessage() with `${this.name}'s attack missed!`
+      // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
+    }
   }
-  ////// A quick re-ordereding-of-carbon-into-metamaterial later and Translucent is good-as-new. Heal+
+
+  ////// CARBON REALIGNMENT – A quick re-ordereding-of-carbon-into-metamaterial later and Translucent is good-as-new. Heal+
+  ///////////////////////////////////////////////////////////////////////////////////////
   carbonRealignment() {
-    // to keep from over-healing...
-    if (this.health < this.maxHealth - 100) {
-      // if current health is less than maxHealth minus heal amount...
-      this.health += 100; // then increase current health by 100
-      // *** updateMessage() with "Translucent restored his health by ${heal amount}"
+    let healAmount = 100; // bind temporary variable healAmount to this skill
+    let healAccuracy = 0.75; // bind temporary variable healAccuracy to this skill
+
+    if (Math.random() < healAccuracy) {
+      // if heal successfully executes...
+      if (this.health < this.maxHealth - healAmount) {
+        // if current health is < maxHealth minus heal amount...
+        this.health += healAmount; // then increase current health by heal amount
+        // *** updateMessage() with "Translucent restored his health by ${heal amount}"
+      } else {
+        // if current health is > maxHealth minus heal amount...
+        this.health = this.maxHealth; // then set current health equal to the value of maxHealth
+        // *** updateMessage() with "Translucent fully restored his health!"
+        // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
+      }
     } else {
-      // otherwise...
-      this.health = this.maxHealth; // set current health equal to the value of maxHealth
-      // *** updateMessage() with "Translucent fully restored his health!"
+      // if heal "misses" entirely...
+      // *** updateMessage() with `Phew, ${this.name} failed to heal!`
+      // *** INCLUDE A FUNCTION CALL THAT PULLS US INTO THE NEXT PHASE OF BATTLE...
     }
   }
-  // Placeholder function that will randomly select and store one of Translucent's above actions.
+
+  // Placeholder function that will select and execute one of Translucent's above actions.
   // Translucent Temperament: Egotistical, Predatory, Self-Involved | Focus on light attack, then heavy attack, then heal
-  // CURRENT: 40% chance of shadowStrike || 35% chance of invisibleLurker || 25% chance of carbonRealignment
   selectAttack() {
-    let randomNum = Math.random(); // set temp variable equal to a random number between 0 and limit 1
+    // CURRENT: 40% chance of shadowStrike || 35% chance of invisibleLurker || 25% chance of carbonRealignment
+
+    let randomNum = Math.random(); // set temp variable equal to a random number between | 0 | and | limit 1 |
     if (randomNum < 0.25) {
-      // if randomly generated value is between 0 and .25 ...
-      this.carbonRealignment(); // then ~25% chance of selecting carbonRealignment as their action each turn
+      // if randomly generated value is less than | .25 |...
+      this.carbonRealignment(); // then select and execute carbonRealignment()
     } else if (randomNum > 0.25 && randomNum < 0.61) {
-      // if randomly generated value is between .25 and .6 ...
-      this.invisibleLurker(); // then ~35% chance of selecting invisibleLurker as their action each turn
+      // if randomly generated value is between | .25 | and | ~.6 |...
+      this.invisibleLurker(); // then select and execute invisibleLurker()
     } else {
-      // if neither of the above if statements have been triggered, then the value of randomNum must be between .61 and limit 1 ...
-      this.shadowStrike(); // then ~40% chance of selecting shadowStrike as their action each turn
+      // if neither of the above if statements have been triggered, then the value of randomNum must be between | .61 | and limit | 1 |...
+      this.shadowStrike(); // then select and execute shadowStrike()
     }
   }
 }
@@ -951,27 +1137,7 @@ const homelander = new Homelander(); // Create Homelander object
 // const updateMessage = (text) => message.textContent = text;
 
 startGame = () => {
-  while (areTheyDead() === false && areWeDead === false) {
-    // Battle Phase
-    // ==>// ==> check to see if M.M. is still alive
-    // ==>// ==>// ==> if alive, set M.M. as our selectedCharacter
-    // ==> M.M. acts...
-    // ==>// ==> check to see if enemy is still alive
-    // ==>// ==> check to see if Butcher is still alive
-    // ==>// ==>// ==> if alive, set Butcher as our selectedCharacter
-    // ==> Butcher acts...
-    // ==>// ==> check to see if enemy is still alive
-    // ==>// ==> check to see if Hughie is still alive
-    // ==>// ==>// ==> if alive, set Hughie as our selectedCharacter
-    // ==> Hughie acts...
-    // ==>// ==> check to see if enemy is still alive
-    // ==>// ==> check to see if Frenchie is still alive
-    // ==>// ==>// ==> if alive, set Frenchie as our selectedCharacter
-    // ==> Frenchie acts...
-    // ==>// ==> check to see if enemy is still alive
-    // ==> Enemy acts...
-    // Battle is either over... - OR - Repeat...
-  }
+  initiateBattlePhase();
 };
 
 /*
@@ -1084,14 +1250,188 @@ const getLevel = (level) => {
 // END getLevel()
 */
 
+/*
+nextCharacter() 
+Allows us to easily cycle through our theBoys array | start --> end --> start |
+via the playerIndex global variable.
+*/
+const nextCharacter = () => {
+  if (playerIndex < theBoys.length) {
+    // if playerIndex < the length of theBoys array... | * note: purposely set the comparison against the full length of the array so that we can use playerIndex of 4 to reference our enemy's turn to attack! Spicy!
+    playerIndex++; // then increment playerIndex
+  } else {
+    // if playerIndex > the length of theBoys array...
+    playerIndex = 0;
+  }
+  // *** LATER... CREATE A FUNCTION that toggles class/css/visual features I want the currentlySelected character to have... INCLUDE THAT FUNCTION HERE <===
+};
+// END nextCharacter()
+
+/*
+initiateBattlePhase()
+Kicks-off core battle logic for Supe vs The Boys
+*/
+const initiateBattlePhase = (opponent) => {
+  if (areTheyDead() === false && areWeDead === false) {
+    // if BOTH areTheyDead returns false AND areWeDead returns false... | ie ==> as long as the enemy is alive AND at least one of The Boys is alive...
+    if (playerIndex === 0) {
+      // if playerIndex is currently pointing at the value of | 0 |... | ie ==> if M.M. is the currentlySelected character...
+      if (MM.isDead() === false) {
+        // if M.M. is alive... | * note: we're starting our battle phase with M.M., because he sits at theBoys[0] and is thus the default value that currentlySelected points to via playerIndex
+        // *** not sure what to put here for the moment... | choosing an action at this point (***SHOULD***) will move us to the next step of Battle Phase
+      } else {
+        // if M.M. is dead...
+        nextCharacter(); // then cycle to the next character
+        mothersMilk.updateStats(); // then update Butcher's stats in the DOM just in case
+      }
+    }
+    if (playerIndex === 1) {
+      // if playerIndex is currently pointing at the value of | 1 |... | ie ==> if Butcher is the currentlySelected character...
+      if (Butcher.isDead() === false) {
+        // if Butcher is alive...
+        // *** not sure what to put here for the moment... | choosing an action at this point (***SHOULD***) will move us to the next step of Battle Phase
+      } else {
+        // if Butcher is dead...
+        nextCharacter(); // then cycle to the next character
+        butcher.updateStats(); // then update Butcher's stats in the DOM just in case
+      }
+    }
+    if (playerIndex === 2) {
+      // if playerIndex is currently pointing at the value of | 2 |... | ie ==> if Hughie is the currentlySelected character...
+      if (Hughie.isDead() === false) {
+        //if Hughie is alive...
+        // *** not sure what to put here for the moment... | choosing an action at this point (***SHOULD***) will move us to the next step of Battle Phase
+      } else {
+        // if Hughie is dead...
+        nextCharacter(); // then cycle to the next character
+        hughie.updateStats(); // then update Hughie's stats in the DOM just in case
+      }
+    }
+    if (playerIndex === 3) {
+      // if playerIndex is currently pointing at the value of | 3 |... | ie ==> if Frenchie is the currentlySelected character...
+      if (Frenchie.isDead() === false) {
+        // if Frenchie is alive...
+        // *** not sure what to put here for the moment... | choosing an action at this point (***SHOULD***) will move us to the next step of Battle Phase
+      } else {
+        // if Frenchie is dead...
+        nextCharacter(); // then cycle to the next character
+        frenchie.updateStats(); // then update Frenchie's in the DOM stats just in case
+      }
+    }
+    if (playerIndex === 4) {
+      if (opponent.isDead() === false) {
+        // if our current opponent is still alive...
+        opponent.selectAttack(); // then have our opponent go through their select attack function ( cascades... included inside that <=== is target validation, target randomization, AND enemy attack choice randomization)
+        mothersMilk.updateStats(); // then update M.M's stats in the DOM in case he got attacked
+        butcher.updateStats(); // then update Butcher's stats in the DOM in case he got attacked
+        hughie.updateStats(); // then update Hughie's stats in the DOM in case he got attacked
+        frenchie.updateStats(); // then update Frenchie's stats in the DOM in case he got attacked
+
+        nextCharacter(); // then cycle to the next character | * note: this cycle instance should always take us back to playerIndex of | 0 |
+      } else {
+        // if our current opponent is now dead...
+        // *** should I include endBattle and all that jazz here, and remove the areTheyDead() expression evaluation out from above^...?
+      }
+    }
+    // IS THIS WHERE opponent.selectAttack() should go?????
+  } else {
+    // if EITHER areTheyDead returns true OR areWeDead returns true...
+    // endBattle()
+    // nextLevel()
+    // getNextCutscene()
+    // ...something like that...
+  }
+};
+
+// END initiateBattlePhase()
+
+// ====================
+// GLOBAL VARIABLES
+// ====================
+
+let opponent = translucent; // hardcoding opponent for now... will later use a switch (I think..) to change opponent dependent on what level we're on
+
+/*
+*** currently trying to set up these action1,2,3 variables so that they I can dynamically control
+choose among each character's 3 actions, using only 3 buttons... ie, when currentlySelected = MM, action 1 = tacticalStrike,
+action 2 = field medic, and action 3 = battlefield triage | then, when currentlySelected = Butcher, I need action 1 to = giftedMarksman,
+action 2 to = brutalize, and so
+*/
+
+let action1;
+let action2;
+let action3;
+
+let healIndex = 0; // Index counter - allows specific targeting of heal commands
+const healTarget = theBoys[healIndex]; // Currently selected heal target, selected from theBoys array
+
+// *** switch / case instead???
+if (currentlySelected === theBoys[0]) {
+  action1 = mothersMilk.tacticalStrike();
+  action2 = mothersMilk.fieldMedic(healTarget);
+  action3 = mothersMilk.battlefieldTriage(healTarget);
+} else if (currentlySelected === theBoys[1]) {
+  action1 = butcher.giftedMarksman();
+  action2 = butcher.brutalize();
+  action3 = butcher.diabolicalMate();
+} else if (currentlySelected === theBoys[2]) {
+  action1 = hughie.tacticalNous();
+  action2 = hughie.fleetwoodMac();
+  action3 = hughie.letsTalk();
+} else if (currentlySelected === theBoys[3]) {
+  action1 = frenchie.gunRunner();
+  action2 = frenchie.improvisedExplosives();
+  action3 = frenchie.spontaneousInventor();
+} else {
+  action1 = null;
+  action2 = null;
+  action3 = null;
+}
+// END action delegation...
+
+let translucentConvoCounter = false; // global counter/tracker that affects conversation-tree with Hughie + Frenchie's inventions...
+let blackNoirConvoCounter = false; // global counter/tracker that affects conversation-tree with Hughie + Frenchie's inventions...
+let lamplighterConvoCounter = false; // global counter/tracker that affects conversation-tree with Hughie + Frenchie's inventions...
+let homelanderConvoCount = 0; // global counter that affects conversation-tree with Hughie + Frenchie's inventions...
+
+// =======================================================================================
+
 /////////////////////
 //  BATTLE LOGIC  // ==================================================================
 ///////////////////
 // PSEUDO:
-//
-//
+// // Battle Phase
+// //
+// ==>// ==> check to see if M.M. is still alive
+// ==>// ==>// ==> if alive, set M.M. as our selectedCharacter
+// ==> M.M. acts...
+// ==>// ==> check to see if enemy is still alive
+// ==>// ==> check to see if Butcher is still alive
+// ==>// ==>// ==> if alive, set Butcher as our selectedCharacter
+// ==> Butcher acts...
+// ==>// ==> check to see if enemy is still alive
+// ==>// ==> check to see if Hughie is still alive
+// ==>// ==>// ==> if alive, set Hughie as our selectedCharacter
+// ==> Hughie acts...
+// ==>// ==> check to see if enemy is still alive
+// ==>// ==> check to see if Frenchie is still alive
+// ==>// ==>// ==> if alive, set Frenchie as our selectedCharacter
+// ==> Frenchie acts...
+// ==>// ==> check to see if enemy is still alive
+// ==> Enemy acts...
+// Battle is either over... - OR - Repeat...
+// //
 // ====================================================================================
 
 // ====================
 // EVENT LISTENERS
 // ====================
+
+/* BUTTONS */
+actionButton1.addEventListener("click", action1);
+actionButton2.addEventListener("click", action2);
+actionButton3.addEventListener("click", action3);
+
+/* MODALS */
+
+/* ON-HOVER */

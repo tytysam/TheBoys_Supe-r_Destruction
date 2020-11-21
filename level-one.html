@@ -5,13 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>The Boys — Supe-r Destruction</title>
     <link rel="stylesheet" href="css/style.css" />
-    <!--   Semantic-UI - Leveraging Semantic-UI in the initial planning + wireframing phase of my initial HTML build.
-      These Pieces of code are not designed by me and I do not claim to have coded them and should not be evaluated for grading etc   
-    -->
+    <!--   Semantic-UI - Leveraging Semantic-UI in the initial planning + wireframing phase of my initial HTML build. These Pieces of code are not designed by me and I do not claim to have coded them and should not be evaluated for grading etc   -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css"
     />
+    <!-- END external code  -->
     <script defer src="js/app.js"></script>
   </head>
   <body>
@@ -20,21 +19,21 @@
     <div class="gameplay-container">
       <div class="bad-guy-container">
         <div id="bad-guy-1">
-          <img src="assets/char-full-figure/homelander_full-figure.png" />
+          <img src="assets/char-full-figure/translucent_full-figure.png" />
         </div>
       </div>
       <div class="good-guy-container">
         <div id="good-guy-1">
-          <img src="assets/char-full-figure/billy-butcher_full-figure.png" />
+          <img src="assets/char-full-figure/mm_full-figure.png" />
         </div>
         <div id="good-guy-2">
           <img src="assets/char-full-figure/billy-butcher_full-figure.png" />
         </div>
         <div id="good-guy-3">
-          <img src="assets/char-full-figure/billy-butcher_full-figure.png" />
+          <img src="assets/char-full-figure/hughie_full-figure.png" />
         </div>
         <div id="good-guy-4">
-          <img src="assets/char-full-figure/billy-butcher_full-figure.png" />
+          <img src="assets/char-full-figure/frenchie_full-figure.png" />
         </div>
       </div>
     </div>
@@ -42,8 +41,8 @@
     <footer>
       <div class="player-controls-container">
         <!-- Far Left Info Pane - Displays Enemy Name + Enemy Health -->
-        <div class="enemy-stats-container ff-style">
-          <h2>HOMELANDER</h2>
+        <div class="enemy-stats-container ff-style" id="opponent-stats">
+          <h2>TRANSLUCENT</h2>
           <br />
           <h2>HP: <span id="enemy-current-health">500 / 500</span></h2>
           <!-- Eventually add a Health Progress Bar HERE -->
@@ -64,25 +63,25 @@
         <!-- Far Right Info Pane - Displays Each Char's Name, Current HP, Current Stamina (SP, Stamina Points?) -->
         <div class="player-stats-container ff-style">
           <!-- Container for each Character's Stats – Name, HP, SP (Stamina Points) -->
-          <div class="char-container">
-            <h2>
-              BUTCHER<span>HP 2000 / 2000</span><span>SP 1000 / 1000</span>
-            </h2>
-          </div>
-          <!-- Container for each Character's Stats – Name, HP, SP (Stamina Points) -->
-          <div class="char-container">
+          <div class="char-container" id="mm-stats">
             <h2>M.M. <span>HP 2000 / 2000</span><span>SP 1000 / 1000</span></h2>
           </div>
           <!-- Container for each Character's Stats – Name, HP, SP (Stamina Points) -->
-          <div class="char-container">
+          <div class="char-container" id="butcher-stats">
+            <h2>
+              BUTCHER <span>HP 2000 / 2000</span><span>SP 1000 / 1000</span>
+            </h2>
+          </div>
+          <!-- Container for each Character's Stats – Name, HP, SP (Stamina Points) -->
+          <div class="char-container" id="hughie-stats">
             <h2>
               HUGHIE <span>HP 2000 / 2000</span><span>SP 1000 / 1000</span>
             </h2>
           </div>
           <!-- Container for each Character's Stats – Name, HP, SP (Stamina Points) -->
-          <div class="char-container">
+          <div class="char-container" id="frenchie-stats">
             <h2>
-              FRENCHIE<span>HP 2000 / 2000</span><span>SP 1000 / 1000</span>
+              FRENCHIE <span>HP 2000 / 2000</span><span>SP 1000 / 1000</span>
             </h2>
           </div>
         </div>
