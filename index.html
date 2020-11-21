@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>The Boys — Supe-r Destruction</title>
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/index.css" />
     <!--   Semantic-UI - Leveraging Semantic-UI in the initial planning + wireframing phase of my initial HTML build.
       These Pieces of code are not designed by me and I do not claim to have coded them and should not be evaluated for grading etc   
     -->
@@ -12,39 +12,33 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css"
     />
-    <script defer src="js/app.js"></script>
+    <script defer src="js/index.js"></script>
   </head>
   <body>
     <!-- AUDIO TO-PLAY ON-LOAD -->
     <audio
       id="title-menu-song"
       src="assets/audio/8bit-title-menu-audio.mp3"
+      loop="loop"
     ></audio>
 
     <header>
-      <h1 class="text-center">
-        <img src="assets/the-boys-wordmark.png" alt="The Boys" />
-      </h1>
-      <nav class="">
-        <ul class="nav nav-pills text-center">
-          <li
-            class="btn btn-info btn-lrg col-sm-12 col-md-12"
-            role="presentation"
-          >
-            <a href="game-instructions.html">Game Instructions</a>
-          </li>
-          <li
-            class="btn btn-info btn-lg col-sm-12 col-md-12"
-            role="presentation"
-          >
-            <a href="level-1-cutscene.html">Play Game</a>
-          </li>
-        </ul>
-      </nav>
+      <div class="title-screen-container">
+        <div class="image-container">
+          <img src="assets/the-boys-8bit-wordmark-alt-2.png" alt="The Boys" />
+        </div>
+        <div class="sub-title"><h1>SUPE-R DESTRUCTION</h1></div>
+        <div class="menu">
+          <ul>
+            <li>
+              <a href="level-one.html" class="btn">Play Game</a>
+            </li>
+            <li>
+              <a href="game-instructions.html" class="btn">Game Instructions</a>
+            </li>
+          </ul>
+        </div>
+      </div>
     </header>
-    <main>
-      <div class="container"></div>
-    </main>
-    <footer></footer>
   </body>
 </html>

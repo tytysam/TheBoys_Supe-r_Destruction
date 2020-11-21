@@ -1,0 +1,89 @@
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Ubuntu+Mono&display=swap");
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-size: 10px;
+  font-family: "Press Start 2P";
+}
+
+.title-screen-container {
+  background-image: url(../assets/backgrounds/city-background-8bit.png);
+  background-repeat: no-repeat;
+  background-position: top;
+  background-size: cover;
+  width: 100vw;
+  height: 100vh;
+}
+
+.image-container {
+  display: flex;
+  justify-content: center;
+}
+
+.image-container > img {
+  width: 500px;
+  transform: translateY(23%);
+}
+
+.sub-title {
+  min-width: 450px;
+  margin: 50px auto;
+  /* margin here controls space between img above and h1 below */
+}
+
+.sub-title > h1 {
+  color: #ffffff;
+  text-shadow: 5px 5px 0px #490702;
+  text-align: center;
+  font-family: "Press Start 2P";
+  font-size: 45px;
+  padding: 5px;
+}
+
+.menu {
+  width: 50vw;
+  min-width: 450px;
+  text-align: center;
+  margin: 50px auto;
+  padding: 10px 20px;
+  left: 0;
+  right: 0;
+  background-color: #002040;
+  border: 3px solid #008080;
+  border-radius: 2px;
+}
+
+ul {
+  padding: 0;
+  /* removes extra spacing created due to being a list 
+  (pushes slightly to the right, so nothing is ever quite
+  aligned with everything else) */
+}
+
+li {
+  margin: 10px;
+  text-align: center;
+  text-decoration: none;
+  list-style-type: none;
+}
+
+li > a {
+  font-size: 20px;
+  text-align: center;
+  color: #ffffff;
+  text-shadow: 2px 2px 0px #008080;
+  font-family: "Press Start 2P";
+  margin: 5px 10px 5px 10px;
+}
+
+li > a:hover {
+  color: #a06020;
+  text-shadow: 2px 2px 0px #bdbd7e;
+}
