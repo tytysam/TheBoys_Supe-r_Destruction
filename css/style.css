@@ -1,6 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Ubuntu+Mono&display=swap");
 * {
-  font-family: "Press Start 2P";
+  /* font-family: "Press Start 2P"; */
 }
 
 html,
@@ -289,7 +289,7 @@ div.ff-style * {
 }
 
 #welcome-modal {
-  color: #ffffff;
+  color: #eff1ff;
   font-family: "Press Start 2P";
   font-size: 20px;
   background-color: #dfdfdf;
@@ -313,7 +313,7 @@ div.ff-style * {
 }
 
 .modal-button {
-  color: #ffffff;
+  color: #eff1ff;
   font-size: 1.25rem;
   background-color: #000000;
   border-radius: 4px;
@@ -326,27 +326,33 @@ div.ff-style * {
 }
 
 #message-modal {
-  color: #ffffff;
-  /* font-family: "Press Start 2P"; */
+  color: #eff1ff;
+  text-shadow: 2px 2px #212421, 1px 1px #212021;
+  font-family: Verdana, sans-serif;
   font-size: 20px;
+  font-weight: normal;
+  /* font-family: "Press Start 2P"; */
   width: 45vw;
-  min-width: 450px;
-  height: 175px;
+  min-width: 550px;
+  height: 200px;
   position: fixed;
-  top: 20%;
+  top: 25%;
   transform: translateY(-20%);
-  padding: 30px;
+  padding: 35px;
   text-align: center;
   border-radius: 8px;
   left: 0;
   right: 0;
-  margin: 0 auto;
+  margin: 20px auto;
 }
 
 #winner-modal {
-  color: #ffffff;
-  font-family: "Press Start 2P";
-  font-size: 14px;
+  color: #eff1ff;
+  text-shadow: 2px 2px #212421, 1px 1px #212021;
+  font-family: Verdana, sans-serif;
+
+  /* font-family: "Press Start 2P"; */
+  font-size: 20px;
   width: 45vw;
   min-width: 450px;
   height: 400px;
@@ -362,9 +368,12 @@ div.ff-style * {
 }
 
 #loser-modal {
-  color: #ffffff;
-  font-family: "Press Start 2P";
-  font-size: 14px;
+  color: #eff1ff;
+  text-shadow: 2px 2px #212421, 1px 1px #212021;
+  font-family: Verdana, sans-serif;
+
+  /* font-family: "Press Start 2P"; */
+  font-size: 20px;
   width: 45vw;
   min-width: 450px;
   height: 250px;

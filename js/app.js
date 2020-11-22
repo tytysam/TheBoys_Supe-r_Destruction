@@ -15,6 +15,7 @@
 // • Work on difficulty of game... Get it working first though!
 // • Multiple difficulty levels? (ie, Easy = 3 enemies/floors/battles, Medium = 5 enemies/floors/battles, Hard = all 7 enemies/floors/battles)
 // • Ability for characters to utilize a shared item pool..?
+// • Revisit ~all of the characters to thresh out their stats + methods further! (get it all working-ish first)
 
 // • ANIMATIONS:
 ////--> Attack animations (One general, one healing, and a few unique to common attacks like The Boys' specials?)
@@ -28,10 +29,12 @@
 ////-->
 
 // =======================================================================================
-//  ===== DON'T FORGET ======
-// • NEED AN updateMessage() function to display text that I would have otherwise console.logged
-// • Revisit ~all of the characters to thresh out their stats + methods further! (get it all working-ish first)
+//  ===== MVP - TO-DO ======
+// • Get the logic working lol
+// • Win modal (and everything within)
+// • Loss modal (and everything within)
 // •
+// • Build the rest of the enemies / levels...
 
 // =======================================================================================
 // =======================================================================================
@@ -46,6 +49,9 @@
 //////        -----STAT UPDATES-----        //////
 //////                                      //////
 //////////////////////////////////////////////////
+
+// Stat Selectors | will allow the DOM to reflect each character's current stats
+///////////////////////////////////////////////////////////////////////////////////////
 const mmStats = document.getElementById("mm-stats"); // mmStats ==> Targets Mother's Milk's HP and SP info in the DOM
 const butcherStats = document.getElementById("butcher-stats"); // butcherStats ==> Targets Butcher's HP and SP info in the DOM
 const hughieStats = document.getElementById("hughie-stats"); // hughieStats ==> Targets Hughie's HP and SP info in the DOM
@@ -89,6 +95,21 @@ const welcomeModal = document.getElementById("welcome-modal");
 ///////////////////////////////////////////////////////////////////////////////////////
 const message = document.getElementById("message-modal");
 
+/////////////////////////////////////////////////
+//////        ---ON-HOVER MODALS---        //////
+/////////////////////////////////////////////////
+
+// ON-HOVER Modals... eventually...
+///////////////////////////////////////////////////////////////////////////////////////
+// ==> // ==> Action 1 Break-out
+// ==> // ==> Action 2 Break-out
+// ==> // ==> Action 3 Break-out
+//
+
+//////////////////////////////////////////////////
+//////        ---HELPER FUNCTIONS---        //////
+//////////////////////////////////////////////////
+
 // Main Feedback Channel - The updateMessage Modal | Most every action will respond in-kind with a prompt that can be clicked to close
 ///////////////////////////////////////////////////////////////////////////////////////
 const updateMessage = (text) => {
@@ -111,13 +132,7 @@ const toggleModal = () => {
   welcomeModal.classList.toggle("closed");
 };
 
-//
-// ON-HOVER Modals... eventually...
-///////////////////////////////////////////////////////////////////////////////////////
-// ==> // ==> Action 1 Break-out
-// ==> // ==> Action 2 Break-out
-// ==> // ==> Action 3 Break-out
-//
+// END HELPER FUNCTIONS
 
 // =======================================================================================
 // =======================================================================================
@@ -127,9 +142,17 @@ const toggleModal = () => {
 // =======================================================================================
 // =======================================================================================
 
-const staminaRegenAmount = 15; // Amount by which They Boys will regain stamina each turn
+// Amount by which They Boys will regain stamina each turn
+///////////////////////////////////////////////////////////////////////////////////////
+const staminaRegenAmount = 15;
 
-let theBoys = []; // Array that will house our team, The Boys
+// Array that will house our team, The Boys
+///////////////////////////////////////////////////////////////////////////////////////
+let theBoys = [];
+
+// Array that will house our enemies, The Supes
+///////////////////////////////////////////////////////////////////////////////////////
+// let theSupes = [];
 
 // =======================================================================================
 // =======================================================================================
@@ -197,9 +220,13 @@ let theBoys = []; // Array that will house our team, The Boys
 // END Humans Class
 
 ///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
 ////// • Create Class for M.M. (Mother's Milk)
 ////// A father, juvenile boys counselor, and former USMC medic, M.M. has *range*.
 ////// Use this versatile character to deal out damage, patch up your allies, and maybe even save a life while you're at it…
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 class MM {
   // Initialize constructor
@@ -211,6 +238,15 @@ class MM {
     this.stamina = 600; // Current-Stamina Value
     this.maxStamina = 600; // Maximum-Stamina Value
     this.accuracy = 0.8; // Each character has a % chance of hitting each shot. Higher^ accuracy value === higher chance of successfully landing your attack/heal/action
+
+    this.action1 = this.action1.bind(this);
+    this.action2 = this.action2.bind(this);
+    this.action3 = this.action3.bind(this);
+
+    // *** Ended up approaching binding from a different angle...
+    // this.tacticalStrike = this.tacticalStrike.bind(this); // Binding 'this' to this action...
+    // this.fieldMedic = this.fieldMedic.bind(this); // Binding 'this' to this action....
+    // this.battlefieldTriage = this.battlefieldTriage.bind(this); // Binding 'this' to this action....
   }
 
   //////////////////////////////////////////////////
@@ -265,11 +301,13 @@ class MM {
 
   ////// TACTICAL STRIKE – Basic attack on enemy. DAMAGE+, STAMINA-
   ///////////////////////////////////////////////////////////////////////////////////////
-  tacticalStrike() {
-    // * note: mapping super to non-ES6 ==> MM.prototype.tacticalStrike = function() { return `${Humans.prototype."some-function".call(this)}`;} | in other words, the keyword super can also be used as an instance of our parent class to call Humans class-specific details | <== the super instance is ~basically ParentClassName.prototype.methodName.call(this,...)
 
+  // * note: had to change the names of each character's CORE actions due to binding issues...
+  // ==> should now be able to dynamically update our Action Buttons
+  action1() {
     let staminaCost = 20; // bind temporary variable of staminaCost to this attack
     let attackDamage = 50; // bind temporary variable of attackDamage to this attack
+
     console.log(this.stamina);
 
     if (this.stamina >= staminaCost) {
@@ -283,21 +321,18 @@ class MM {
         updateMessage(
           `M.M. landed a tactical strike on ${opponent.name} for ${attackDamage} damage!`
         );
-
-        // Post-Attack Stack | refactor out eventually?
-        this.regenerateStamina(); // then regenerate stamina for the round
-        this.updateStats(); // then updateStats()
-        nextCharacter(); // then cycle to the next character
       } else {
         // if our attack missed the enemy...
         console.log("Bummer! M.M. missed his attack."); // then console.log
         updateMessage("M.M.'s attack missed!"); // then updateMessage()
-
-        // Post-Attack Stack | refactor out eventually?
-        this.regenerateStamina(); // then regenerate stamina for the round
-        this.updateStats(); // then updateStats()
-        nextCharacter(); // then cycle to the next character
       }
+
+      // Post-Attack Stack | refactor out eventually? (endOfTurn() that contains updateAllStats(), nextCharacter(), and initiateBattlePhase())
+      console.log("Post-Attack Function Stack... "); // then console.log
+      this.regenerateStamina(); // then regenerate stamina for the round
+      updateAllStats(); // then update everyone's stats (this way we account for attacking the enemy, taking damage from our own attacks, healing a particular target, OR healing ourselves)
+      nextCharacter(); // then cycle to the next character
+      initiateBattlePhase(); // then start another round of Battle Phase
     } else {
       // if our current stamina < the required stamina for this attack...
       // then updateMessage()
@@ -309,7 +344,10 @@ class MM {
 
   ////// FIELD MEDIC – Basic heal command. Targets one individual, heals moderate amount. HEAL+, STAMINA-
   ///////////////////////////////////////////////////////////////////////////////////////
-  fieldMedic() {
+
+  // * note: had to change the names of each character's CORE actions due to binding issues...
+  // ==> should now be able to dynamically update our Action Buttons
+  action2() {
     // This skill targets healTarget, a global variable that references one of the boys in theBoys array
     // healTarget is selected via the four heal-target-select-buttons below the 3 main action buttons
 
@@ -317,45 +355,52 @@ class MM {
     let healAmount = 100; // bind temporary variable of healAmount to this skill
 
     if (healTarget.isDead() === false) {
-      // if the character we're trying to target is still alive...
-      if (this.stamina >= staminaCost) {
-        // if current stamina >= the required stamina for this skill...
-        if (checkIfHit(this) === true) {
-          // if our heal is successful...
-          console.log("Success! M.M. landed his heal."); // then console.log
-          this.stamina -= staminaCost; // then decrease our stamina by stamina cost
-          if (healTarget.health < healTarget.maxHealth - healAmount) {
-            // if target's current health < their maxHealth minus heal amount...
-            healTarget.health += healAmount; // then increase ally's health by heal amount
-            // then updateMessage()
-            updateMessage(
-              `M.M healed ${healTarget.name} for ${healAmount} HP!`
-            );
+      // if heal target is still alive...
+      if (healTarget.health !== healTarget.maxHealth) {
+        // if the heal target's current health is NOT equal to target's max health... | ie ==> if the heal target is NOT at full-health
+        if (this.stamina >= staminaCost) {
+          // if current stamina >= the required stamina for this skill...
+          if (checkIfHit(this) === true) {
+            // if our heal is successful...
+            console.log("Success! M.M. landed his heal."); // then console.log
+            this.stamina -= staminaCost; // then decrease our stamina by stamina cost
+            if (healTarget.health < healTarget.maxHealth - healAmount) {
+              // if target's current health < their maxHealth minus heal amount...
+              healTarget.health += healAmount; // then increase ally's health by heal amount
+              // then updateMessage()
+              updateMessage(
+                `M.M healed ${healTarget.name} for ${healAmount} HP!`
+              );
+            } else {
+              // if the target's current health > their maxHealth minus heal amount...
+              healTarget.health = healTarget.maxHealth; // then set target's current health equal to the value of the target's maxHealth
+              // then updateMessage()
+              updateMessage(`M.M. fully restored ${healTarget.name}'s HP!`);
+            }
           } else {
-            // if the target's current health > their maxHealth minus heal amount...
-            healTarget.health = healTarget.maxHealth; // then set target's current health equal to the value of the target's maxHealth
-            // then updateMessage()
-            updateMessage(`M.M. fully restored ${healTarget.name}'s HP!`);
+            // if our heal "missed"...
+            console.log("Bummer! M.M. missed his heal."); // then console.log
+            updateMessage("M.M.'s heal attempt failed! Son of a ...!"); // then updateMessage()
           }
-          // Post-Attack Stack | refactor out eventually?
-          this.regenerateStamina(); // then regenerate stamina for the round
-          this.updateStats(); // then updateStats()
-          nextCharacter(); // then cycle to the next character
-        } else {
-          // if our heal "missed"...
-          console.log("Bummer! M.M. missed his heal."); // then console.log
-          updateMessage("M.M.'s heal attempt failed! Son of a ...!"); // then updateMessage()
 
           // Post-Attack Stack | refactor out eventually?
+          console.log("Post-Attack Function Stack... "); // then console.log
           this.regenerateStamina(); // then regenerate stamina for the round
-          this.updateStats(); // then updateStats()
+          updateAllStats(); // then update everyone's stats (this way we account for attacking the enemy, taking damage from our own attacks, healing a particular target, OR healing ourselves)
           nextCharacter(); // then cycle to the next character
+          initiateBattlePhase(); // then start another round of Battle Phase
+        } else {
+          // if current stamina < the required stamina for this skill...
+          // then updateMessage()
+          updateMessage(
+            `M.M. doesn't have enough stamina! Try choosing a different action.`
+          );
         }
       } else {
-        // if current stamina < the required stamina for this skill...
+        // if heal target's current health === heal target's maxHealth | ie ==> if the heal target IS at full-health
         // then updateMessage()
         updateMessage(
-          `M.M. doesn't have enough stamina! Try choosing a different action.`
+          `Sweet, ${healTarget.name} is already at full-health! Try changing your heal target, or choosing a different action.`
         );
       }
     } else {
@@ -369,7 +414,10 @@ class MM {
 
   ////// *Special*: BATTLEFIELD TRIAGE – FOR A COST... M.M. can use his skills as a combat medic to revive one teammate. If @ 0 HP, revive (like a phoenix down, with ~some health). HEAL+++, STAMINA---
   ///////////////////////////////////////////////////////////////////////////////////////
-  battlefieldTriage() {
+
+  // * note: had to change the names of each character's CORE actions due to binding issues...
+  // ==> should now be able to dynamically update our Action Buttons
+  action3() {
     // Passing healTarget, a global variable, as the argument | healTarget references one of the boys in theBoys array
 
     let staminaCost = 75; // bind temporary variable of staminaCost to this skill
@@ -388,21 +436,18 @@ class MM {
           updateMessage(
             `M.M. revived ${healTarget.name}! They now have ${healAmount} health.`
           );
-
-          // Post-Attack Stack | refactor out eventually?
-          this.regenerateStamina(); // then regenerate stamina for the round
-          this.updateStats(); // then updateStats()
-          nextCharacter(); // then cycle to the next character
         } else {
           // if our revive "missed"...
           console.log("Bummer! M.M. missed his revive."); // then console.log
           updateMessage("M.M.'s revive attempt failed! What a waste!"); // then updateMessage()
-
-          // Post-Attack Stack | refactor out eventually?
-          this.regenerateStamina(); // then regenerate stamina for the round
-          this.updateStats(); // then updateStats()
-          nextCharacter(); // then cycle to the next character
         }
+
+        // Post-Attack Stack | refactor out eventually?
+        console.log("Post-Attack Function Stack... "); // then console.log
+        this.regenerateStamina(); // then regenerate stamina for the round
+        updateAllStats(); // then update everyone's stats (this way we account for attacking the enemy, taking damage from our own attacks, healing a particular target, OR healing ourselves)
+        nextCharacter(); // then cycle to the next character
+        initiateBattlePhase(); // then start another round of Battle Phase
       } else {
         // if current stamina < the required stamina for the skill...
         // then updateMessage()
@@ -421,9 +466,13 @@ class MM {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
 ////// Create class for William "Billy" Butcher
 ////// Use Butcher’s cunning, strength, and sadistic nature to take down Supes.
 ////// Butcher packs a powerful, varied arsenal: manage his stamina, and he can bring down almost any Supe.
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 class Butcher {
   //Initialize constructor
@@ -434,6 +483,15 @@ class Butcher {
     this.stamina = 500; // Current-Stamina Value
     this.maxStamina = 500; // Maximum-Stamina Value
     this.accuracy = 0.7; // Each character has a % chance of hitting each shot. Higher^ accuracy value === higher chance of successfully landing your attack/heal/action
+
+    this.action1 = this.action1.bind(this);
+    this.action2 = this.action2.bind(this);
+    this.action3 = this.action3.bind(this);
+
+    // *** Ended up approaching binding from a different angle...
+    // this.giftedMarksman = this.giftedMarksman.bind(this); // Binding 'this' to this action...
+    // this.brutalize = this.brutalize.bind(this); // Binding 'this' to this action....
+    // this.diabolicalMate = this.diabolicalMate.bind(this); // Binding 'this' to this action....
   }
 
   //////////////////////////////////////////////////
@@ -445,6 +503,9 @@ class Butcher {
   // updateStats()
   // • At the end of every round and enemy attack, this updateStats() method will push stat updates for each character's Health Points and Stamina Points
   ///////////////////////////////////////////////////////////////////////////////////////
+
+  // * note: had to change the names of each character's CORE actions due to binding issues...
+  // ==> should now be able to dynamically update our Action Buttons
   updateStats() {
     // update current HP and SP in the DOM
     butcherStats.innerHTML = `<h2>BUTCHER <span>HP ${this.health} / ${this.maxHealth}</span><span>SP ${this.stamina} / ${this.maxStamina}</span></h2>`;
@@ -488,7 +549,10 @@ class Butcher {
 
   ////// GIFTED MARKSMAN – Basic attack. Butcher should be our strongest character so, Damage+ means a little extra for him... DAMAGE+, STAMINA-
   ///////////////////////////////////////////////////////////////////////////////////////
-  giftedMarksman() {
+
+  // * note: had to change the names of each character's CORE actions due to binding issues...
+  // ==> should now be able to dynamically update our Action Buttons
+  action1() {
     let staminaCost = 10; // bind temporary variable of staminaCost to this attack
     let attackDamage = 70; // bind temporary variable fo attackDamage to this attack
 
@@ -503,21 +567,18 @@ class Butcher {
         updateMessage(
           `Butcher hit ${opponent.name} for ${attackDamage} damage!`
         );
-
-        // Post-Attack Stack | refactor out eventually?
-        this.regenerateStamina(); // then regenerate stamina for the round
-        this.updateStats(); // then updateStats()
-        nextCharacter(); // then cycle to the next character
       } else {
         // if our attack missed the enemy...
         console.log("Bummer! Butcher missed his attack."); // then console.log
         updateMessage("Butcher's attack missed!"); // then updateMessage()
-
-        // Post-Attack Stack | refactor out eventually?
-        this.regenerateStamina(); // then regenerate stamina for the round
-        this.updateStats(); // then updateStats()
-        nextCharacter(); // then cycle to the next character
       }
+
+      // Post-Attack Stack | refactor out eventually? (endOfTurn() that contains updateAllStats(), nextCharacter(), and initiateBattlePhase())
+      console.log("Post-Attack Function Stack... "); // then console.log
+      this.regenerateStamina(); // then regenerate stamina for the round
+      updateAllStats(); // then update everyone's stats (this way we account for attacking the enemy, taking damage from our own attacks, healing a particular target, OR healing ourselves)
+      nextCharacter(); // then cycle to the next character
+      initiateBattlePhase(); // then start another round of Battle Phase
     } else {
       // if current stamina < the required stamina for the attack...
       // then updateMessage()
@@ -529,7 +590,10 @@ class Butcher {
 
   ////// BRUTALIZE – Medium attack. Mo' stamina mo' damage, baby. DAMAGE++, STAMINA--
   ///////////////////////////////////////////////////////////////////////////////////////
-  brutalize() {
+
+  // * note: had to change the names of each character's CORE actions due to binding issues...
+  // ==> should now be able to dynamically update our Action Buttons
+  action2() {
     let staminaCost = 25; // bind temporary variable of staminaCost to this attack
     let attackDamage = 135; // bind temporary variable of attackDamage to this attack
 
@@ -544,21 +608,18 @@ class Butcher {
         updateMessage(
           `Butcher hit ${opponent.name} for ${attackDamage} damage!`
         );
-
-        // Post-Attack Stack | refactor out eventually?
-        this.regenerateStamina(); // then regenerate stamina for the round
-        this.updateStats(); // then updateStats()
-        nextCharacter(); // then cycle to the next character
       } else {
         // if our attack missed the enemy...
         console.log("Bummer! Butcher missed his attack."); // then console.log
         updateMessage("Butcher's attack missed!"); // then updateMessage()
-
-        // Post-Attack Stack | refactor out eventually?
-        this.regenerateStamina(); // then regenerate stamina for the round
-        this.updateStats(); // then updateStats()
-        nextCharacter(); // then cycle to the next character
       }
+
+      // Post-Attack Stack | refactor out eventually? (endOfTurn() that contains updateAllStats(), nextCharacter(), and initiateBattlePhase())
+      console.log("Post-Attack Function Stack... "); // then console.log
+      this.regenerateStamina(); // then regenerate stamina for the round
+      updateAllStats(); // then update everyone's stats (this way we account for attacking the enemy, taking damage from our own attacks, healing a particular target, OR healing ourselves)
+      nextCharacter(); // then cycle to the next character
+      initiateBattlePhase(); // then start another round of Battle Phase
     } else {
       // if current stamina < the required stamina for the attack...
       // then updateMessage
@@ -570,7 +631,10 @@ class Butcher {
 
   ////// *Special*: F*CKIN DIABOLICAL MATE – FOR A COST... Butcher can put his years in the British SAS to use eviscerating (*ouch*) his opponents. DAMAGE+++, STAMINA---
   ///////////////////////////////////////////////////////////////////////////////////////
-  diabolicalMate() {
+
+  // * note: had to change the names of each character's CORE actions due to binding issues...
+  // ==> should now be able to dynamically update our Action Buttons
+  action3() {
     let staminaCost = 60; // bind temporary variable staminaCost to this attack
     let attackDamage = 200; // bind temporary variable attackDamage to this attack
 
@@ -585,21 +649,18 @@ class Butcher {
         updateMessage(
           `F*CKIN' DIABOLICAL, MATE. Butcher hit ${opponent.name} for ${attackDamage} damage!`
         );
-
-        // Post-Attack Stack | refactor out eventually?
-        this.regenerateStamina(); // then regenerate stamina for the round
-        this.updateStats(); // then updateStats()
-        nextCharacter(); // then cycle to the next character
       } else {
         // if our attack missed the enemy...
         console.log("Bummer! Butcher missed his attack."); // then console.log
         updateMessage("Bollocks, Butcher's attack missed!"); // then updateMessage()
-
-        // Post-Attack Stack | refactor out eventually?
-        this.regenerateStamina(); // then regenerate stamina for the round
-        this.updateStats(); // then updateStats()
-        nextCharacter(); // then cycle to the next character
       }
+
+      // Post-Attack Stack | refactor out eventually? (endOfTurn() that contains updateAllStats(), nextCharacter(), and initiateBattlePhase())
+      console.log("Post-Attack Function Stack... "); // then console.log
+      this.regenerateStamina(); // then regenerate stamina for the round
+      updateAllStats(); // then update everyone's stats (this way we account for attacking the enemy, taking damage from our own attacks, healing a particular target, OR healing ourselves)
+      nextCharacter(); // then cycle to the next character
+      initiateBattlePhase(); // then start another round of Battle Phase
     } else {
       // if current stamina < the required stamina for the attack...
       // then updateMessage()
@@ -611,9 +672,13 @@ class Butcher {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
 ////// Create a class for Hugh "Hughie" Campbell Jr. (see also ==> Petit Hughie, "Wee Hughie")
 ////// Hughie isn’t much of a fighter, but his skill and cunning in combat may surprise you…
 ////// Use his intelligence and healing abilities to support your team in battle.
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 class Hughie {
   //Initialize constructor
@@ -624,6 +689,15 @@ class Hughie {
     this.stamina = 1000; // Current-Stamina Value
     this.maxStamina = 1000; // Maximum-Stamina Value
     this.accuracy = 0.9; // Each character has a % chance of hitting each shot. Higher^ accuracy value === higher chance of successfully landing your attack/heal/action
+
+    this.action1 = this.action1.bind(this);
+    this.action2 = this.action2.bind(this);
+    this.action3 = this.action3.bind(this);
+
+    // *** Ended up approaching binding from a different angle...
+    // this.tacticalNous = this.tacticalNous.bind(this); // Binding 'this' to this action...
+    // this.fleetwoodMac = this.fleetwoodMac.bind(this); // Binding 'this' to this action....
+    // this.letsTalk = this.letsTalk.bind(this); // Binding 'this' to this action....
   }
 
   //////////////////////////////////////////////////
@@ -678,7 +752,10 @@ class Hughie {
 
   ////// TACTICAL NOUS – Tactical skill that deals a small amount of damage AND reveals an enemy's weakness (if they have any!). DAMAGE 1/2+, STAMINA--
   ///////////////////////////////////////////////////////////////////////////////////////
-  tacticalNous() {
+
+  // * note: had to change the names of each character's CORE actions due to binding issues...
+  // ==> should now be able to dynamically update our Action Buttons
+  action1() {
     let staminaCost = 20; // bind temporary variable staminaCost to this skill
     let attackDamage = 5; // bind temporary variable attackDamage to this skill
 
@@ -750,11 +827,6 @@ class Hughie {
             );
           }
         }
-
-        // Post-Attack Stack | refactor out eventually?
-        this.regenerateStamina(); // then regenerate stamina for the round
-        this.updateStats(); // then updateStats()
-        nextCharacter(); // then cycle to the next character
       } else {
         // if our action "missed"...
         console.log("Bummer! Hughie missed his action."); // then console.log
@@ -762,12 +834,14 @@ class Hughie {
         updateMessage(
           "Missed? How in the hell did you miss?! Damnit Hughie..."
         );
-
-        // Post-Attack Stack | refactor out eventually?
-        this.regenerateStamina(); // then regenerate stamina for the round
-        this.updateStats(); // then updateStats()
-        nextCharacter(); // then cycle to the next character
       }
+
+      // Post-Attack Stack | refactor out eventually? (endOfTurn() that contains updateAllStats(), nextCharacter(), and initiateBattlePhase())
+      console.log("Post-Attack Function Stack... "); // then console.log
+      this.regenerateStamina(); // then regenerate stamina for the round
+      updateAllStats(); // then update everyone's stats (this way we account for attacking the enemy, taking damage from our own attacks, healing a particular target, OR healing ourselves)
+      nextCharacter(); // then cycle to the next character
+      initiateBattlePhase(); // then start another round of Battle Phase
     } else {
       // if current stamina < the required stamina for the skill...
       // then updateMessage()
@@ -779,7 +853,10 @@ class Hughie {
 
   ////// FLEETWOOD MAC – Hughie, White Mage and lover of smooth tunes. This move heals the entire team for a moderate amount. HEAL++, STAMINA--
   ///////////////////////////////////////////////////////////////////////////////////////
-  fleetwoodMac() {
+
+  // * note: had to change the names of each character's CORE actions due to binding issues...
+  // ==> should now be able to dynamically update our Action Buttons
+  action2() {
     let staminaCost = 20; // bind temporary variable staminaCost to this skill
     let healAmount = 50; // bind temporary variable healAmoutn to this skill
 
@@ -788,9 +865,10 @@ class Hughie {
       if (checkIfHit(this) === true) {
         // if our action succeeded...
         console.log("Success! Hughie landed his heal."); // then console.log
-
         this.stamina -= staminaCost; // then decrease current stamina by stamina cost
-        for (let member of theBoys) // for each member of The Boys in theBoys array...
+
+        // for each member of The Boys in theBoys array...
+        for (let member of theBoys) {
           if (member.isDead() === false) {
             // if member is alive...
             if (member.health < member.maxHealth - healAmount) {
@@ -804,15 +882,11 @@ class Hughie {
             // if member is dead...
             return; // then return – cycle back through for loop | *** might need to be "continue"? making note now for future troubleshooting...
           }
-        // then updateMessage()
-        updateMessage(
-          "Now that is soul-soothing… the whole team feels revitalized!"
-        );
-
-        // Post-Attack Stack | refactor out eventually?
-        this.regenerateStamina(); // then regenerate stamina for the round
-        this.updateStats(); // then updateStats()
-        nextCharacter(); // then cycle to the next character
+          // then updateMessage()
+          updateMessage(
+            "Now that is soul-soothing… the whole team feels revitalized!"
+          );
+        }
       } else {
         // if our action "missed"...
         console.log("Bummer! Hughie missed his heal."); // then console.log
@@ -820,12 +894,14 @@ class Hughie {
         updateMessage(
           "Missed? How in the hell did you miss?! Damnit Hughie..."
         );
-
-        // Post-Attack Stack | refactor out eventually?
-        this.regenerateStamina(); // then regenerate stamina for the round
-        this.updateStats(); // then updateStats()
-        nextCharacter(); // then cycle to the next character
       }
+
+      // Post-Attack Stack | refactor out eventually? (endOfTurn() that contains updateAllStats(), nextCharacter(), and initiateBattlePhase())
+      console.log("Post-Attack Function Stack... "); // then console.log
+      this.regenerateStamina(); // then regenerate stamina for the round
+      updateAllStats(); // then update everyone's stats (this way we account for attacking the enemy, taking damage from our own attacks, healing a particular target, OR healing ourselves)
+      nextCharacter(); // then cycle to the next character
+      initiateBattlePhase(); // then start another round of Battle Phase
     } else {
       // if current stamina < the required stamina for the skill...
       // then updateMessage()
@@ -837,7 +913,10 @@ class Hughie {
 
   ////// *Special*: LET'S TALK – FOR A COST... Mild-mannered and meek, Hughie believes anything can be worked through if you just talk about it. Let's see how it goes! DAMAGE??, STAMINA---
   ///////////////////////////////////////////////////////////////////////////////////////
-  letsTalk() {
+
+  // * note: had to change the names of each character's CORE actions due to binding issues...
+  // ==> should now be able to dynamically update our Action Buttons
+  action3() {
     let staminaCost = 50; // bind temporary variable staminaCost to this skill
     let attackDamage = 75; // bind temporary variable attackDamage to this skill | for this skill, attack damage = self-inflicted damage
 
@@ -855,11 +934,7 @@ class Hughie {
             `Annie! Listen to me: You're not like the rest of The Seven! Since when did "hopeful" and "naive" become the same thing? I know you are in this business to try to save the world.. We can help! Help us stop Homelander!`
           );
 
-          // Post-Attack Stack | refactor out eventually?
-          this.regenerateStamina(); // then regenerate stamina for the round
-          this.updateStats(); // then updateStats()
-          nextCharacter(); // then cycle to the next character
-          // *** then battleEnd()
+          // *** then battleWin()
           // *** nextCutscene()
         } else {
           // if target name is anything other than Starlight...
@@ -868,11 +943,6 @@ class Hughie {
           updateMessage(
             "Hughie – in what world was that going to work? Un-f*cking-believeable. C'mon mate..."
           );
-
-          // Post-Attack Stack | refactor out eventually?
-          this.regenerateStamina(); // then regenerate stamina for the round
-          this.updateStats(); // then updateStats()
-          nextCharacter(); // then cycle to the next character
         }
       } else {
         // if our action "missed"...
@@ -881,12 +951,14 @@ class Hughie {
         updateMessage(
           "Missed? How in the hell did you miss?! Damnit Hughie..."
         );
-
-        // Post-Attack Stack | refactor out eventually?
-        this.regenerateStamina(); // then regenerate stamina for the round
-        this.updateStats(); // then updateStats()
-        nextCharacter(); // then cycle to the next character
       }
+
+      // Post-Attack Stack | refactor out eventually? (endOfTurn() that contains updateAllStats(), nextCharacter(), and initiateBattlePhase())
+      console.log("Post-Attack Function Stack... "); // then console.log
+      this.regenerateStamina(); // then regenerate stamina for the round
+      updateAllStats(); // then update everyone's stats (this way we account for attacking the enemy, taking damage from our own attacks, healing a particular target, OR healing ourselves)
+      nextCharacter(); // then cycle to the next character
+      initiateBattlePhase(); // then start another round of Battle Phase
     } else {
       // if current stamina < the required stamina for the skill...
       // then updateMessage()
@@ -897,9 +969,14 @@ class Hughie {
   }
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
 ////// Create a class for Frenchie (real name Serge.. see ==> The Frenchman)
-////// Equally adept with a blade as he is with a beaker, Frenchie likes playing mad-scientist, often
-////// improvising his own weapons — you never know what he’ll come up with next.
+////// Equally adept with a blade as he is with a beaker, Frenchie likes playing mad-scientist,
+////// often improvising his own weapons — you never know what he’ll come up with next.
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 class Frenchie {
   //Initialize constructor
@@ -910,6 +987,15 @@ class Frenchie {
     this.stamina = 550; // Current-Stamina Value
     this.maxStamina = 550; // Maximum-Stamina Value
     this.accuracy = 0.8; // Each character has a % chance of hitting each shot. Higher^ accuracy value === higher chance of successfully landing your attack/heal/action
+
+    this.action1 = this.action1.bind(this);
+    this.action2 = this.action2.bind(this);
+    this.action3 = this.action3.bind(this);
+
+    // *** Ended up approaching binding from a different angle...
+    // this.giftedMarksman = this.giftedMarksman.bind(this); // Binding 'this' to this action...
+    // this.brutalize = this.brutalize.bind(this); // Binding 'this' to this action....
+    // this.diabolicalMate = this.diabolicalMate.bind(this); // Binding 'this' to this action....
   }
 
   //////////////////////////////////////////////////
@@ -964,7 +1050,10 @@ class Frenchie {
 
   ////// GUN RUNNER – Buy, sell, build, shoot – c'est vrai: Frenchie knows his way around guns. Basic attack. DAMAGE+, STAMINA-
   ///////////////////////////////////////////////////////////////////////////////////////
-  gunRunner() {
+
+  // * note: had to change the names of each character's CORE actions due to binding issues...
+  // ==> should now be able to dynamically update our Action Buttons
+  action1() {
     let staminaCost = 10; // bind temporary variable staminaCost to this attack
     let attackDamage = 55; // bind temporary variable attackDamage to this attack
 
@@ -979,20 +1068,18 @@ class Frenchie {
         updateMessage(
           `Frenchie hit ${opponent.name} for ${attackDamage} damage!`
         );
-
-        // Post-Attack Stack | refactor out eventually?
-        this.regenerateStamina(); // then regenerate stamina for the round
-        this.updateStats(); // then updateStats()
-        nextCharacter(); // then cycle to the next character
       } else {
+        // if our attack missed the enemy...
         console.log("Bummer! Frenchie missed his attack."); // then console.log
         updateMessage(`Zut-alors! Frenchie's attack missed...`); // then updateMessage()
-
-        // Post-Attack Stack | refactor out eventually?
-        this.regenerateStamina(); // then regenerate stamina for the round
-        this.updateStats(); // then updateStats()
-        nextCharacter(); // then cycle to the next character
       }
+
+      // Post-Attack Stack | refactor out eventually? (endOfTurn() that contains updateAllStats(), nextCharacter(), and initiateBattlePhase())
+      console.log("Post-Attack Function Stack... "); // then console.log
+      this.regenerateStamina(); // then regenerate stamina for the round
+      updateAllStats(); // then update everyone's stats (this way we account for attacking the enemy, taking damage from our own attacks, healing a particular target, OR healing ourselves)
+      nextCharacter(); // then cycle to the next character
+      initiateBattlePhase(); // then start another round of Battle Phase
     } else {
       // if current stamina is < the required stamina for the attack...
       // then updateMessage()
@@ -1004,7 +1091,10 @@ class Frenchie {
 
   ////// IMPROVISED EXPLOSIVES – Chemical engineering in the modern world. DAMAGE++, STAMINA--
   ///////////////////////////////////////////////////////////////////////////////////////
-  improvisedExplosives() {
+
+  // * note: had to change the names of each character's CORE actions due to binding issues...
+  // ==> should now be able to dynamically update our Action Buttons
+  action2() {
     let staminaCost = 40; // bind temporary variable staminaCost to this attack
     let attackDamage = 135; // bind temporary variable attackDamage to this attack
 
@@ -1023,29 +1113,28 @@ class Frenchie {
           updateMessage(
             "Frenchie did you just... put a bomb... in-.. inside of him?.. F*ck me, mate... That's bloody brilliant."
           );
-          //MAY need post attack stack here..?
-          // *** battleEnd()
-          // *** nextCutscene()
+          // *** battleWin()
         } else {
           // if our target is anyone other than Translucent, AND/OR Hughie hasn't revealed Translucent's weakness yet.
           opponent.health -= attackDamage; // then decrease target's health by attack damage
+          // then updateMessage()
+          updateMessage(
+            `Frenchie hit ${opponent.name} for ${attackDamage} damage!`
+          );
         }
-
-        // Post-Attack Stack | refactor out eventually?
-        this.regenerateStamina(); // then regenerate stamina for the round
-        this.updateStats(); // then updateStats()
-        nextCharacter(); // then cycle to the next character
       } else {
         // if our attack missed the enemy...
         console.log("Bummer! Frenchie missed his attack."); // then console.log
         // then updateMessage()
         updateMessage(`Zut-alors! Frenchie's attack missed...`);
-
-        // Post-Attack Stack | refactor out eventually?
-        this.regenerateStamina(); // then regenerate stamina for the round
-        this.updateStats(); // then updateStats()
-        nextCharacter(); // then cycle to the next character
       }
+
+      // Post-Attack Stack | refactor out eventually? (endOfTurn() that contains updateAllStats(), nextCharacter(), and initiateBattlePhase())
+      console.log("Post-Attack Function Stack... "); // then console.log
+      this.regenerateStamina(); // then regenerate stamina for the round
+      updateAllStats(); // then update everyone's stats (this way we account for attacking the enemy, taking damage from our own attacks, healing a particular target, OR healing ourselves)
+      nextCharacter(); // then cycle to the next character
+      initiateBattlePhase(); // then start another round of Battle Phase
     } else {
       // if current stamina < the required stamina for the attack...
       // then updateMessage()
@@ -1057,7 +1146,10 @@ class Frenchie {
 
   ////// *Special*: SPONTANEOUS INVENTOR – FOR A COST... Frenchie was originally recruited to The Boys thanks to his history of developing impressive gadgets and creative weapons. Notable creations include: • a sniper-rifle round coated in the same carbon metamaterial as Translucent's skin (status: failure) • a xanax-bomb meant to counter the rage-induced powers of the Supe, Behemoth (status: success) • **SPOILERS** inspired by a turtle and its shell, Frenchie builds a plastic bomb meant for Translucent's... insides. (status: null) DAMAGE???, STAMINA---
   ///////////////////////////////////////////////////////////////////////////////////////
-  spontaneousInventor() {
+
+  // * note: had to change the names of each character's CORE actions due to binding issues...
+  // ==> should now be able to dynamically update our Action Buttons
+  action3() {
     let staminaCost = 100; // bind temporary variable staminaCost to this attack
     let attackDamage = 100; // bind temporary variable attackDamage to this attack
     let damageBonus = 5; // bind temporary variable damageBonus to this attack | Damage multiplier applied when we know a Supe's obvious weakness...
@@ -1098,20 +1190,18 @@ class Frenchie {
             `Salut. Let's see how much targeted sonic-energy your ears can take... *Surprisingly effective!* Homelander took ${modifiedDamage} damage from Frenchie's sonic emitter!`
           );
         }
-
-        // Post-Attack Stack | refactor out eventually?
-        this.regenerateStamina(); // then regenerate stamina for the round
-        this.updateStats(); // then updateStats()
-        nextCharacter(); // then cycle to the next character
       } else {
         // if our attack missed the enemy...
         console.log("Bummer! Frenchie missed his attack."); // then console.log
         updateMessage(`Zut-alors! Frenchie's attack missed...`); // then updateMessage()
       }
-      // Post-Attack Stack | refactor out eventually?
+
+      // Post-Attack Stack | refactor out eventually? (endOfTurn() that contains updateAllStats(), nextCharacter(), and initiateBattlePhase())
+      console.log("Post-Attack Function Stack... "); // then console.log
       this.regenerateStamina(); // then regenerate stamina for the round
-      this.updateStats(); // then updateStats()
+      updateAllStats(); // then update everyone's stats (this way we account for attacking the enemy, taking damage from our own attacks, healing a particular target, OR healing ourselves)
       nextCharacter(); // then cycle to the next character
+      initiateBattlePhase(); // then start another round of Battle Phase
     } else {
       // if current stamina < the required stamina for the attack...
       // then updateMessage()
@@ -1139,7 +1229,8 @@ theBoys.push(frenchie);
 let healTarget = theBoys[0]; // Currently selected Heal Target
 
 let playerIndex = 0; // Index counter - allows iteration and easier manipulation of members of The Boys
-let currentlySelected = theBoys[playerIndex]; // Currently selected member of The Boys
+let currentlySelected = theBoys[0];
+// let currentlySelected = theBoys[playerIndex]; // Currently selected member of The Boys
 
 // console.log(mothersMilk);
 // console.log(butcher);
@@ -1938,6 +2029,7 @@ let opponent = theSupes[opponentIndex]; // Currently selected opponent from theS
 // • start our battle
 ///////////////////////////////////////////////////////////////////////////////////////
 const startGame = () => {
+  currentlySelected = theBoys[0];
   updateAllStats();
   initiateBattlePhase();
 };
@@ -2008,6 +2100,208 @@ const checkIfHit = (ally) => {
 };
 // END checkIfHit()
 
+// nextCharacter()
+// • Allows us to easily cycle through our theBoys array | start --> end --> start |
+// via the playerIndex global variable.
+///////////////////////////////////////////////////////////////////////////////////////
+const nextCharacter = () => {
+  if (playerIndex < theBoys.length) {
+    // if playerIndex < the length of theBoys array... | ie ==> as long as playerIndex < 4 | * note: purposely set the comparison against the full length of the array so that we can use playerIndex of 4 to reference our enemy's turn to attack! Spicy!
+    playerIndex++; // then increment playerIndex
+  } else {
+    // if playerIndex > the length of theBoys array... | ie ==> if playerIndex >= 4
+    initiateEnemyPhase(); // then start Enemy Phase |
+    setTimeout(() => {
+      playerIndex = 0; // then reset playerIndex back to zero
+    }, 500); // will execute in ==>  | 0.5 seconds |
+  }
+  // *** LATER... CREATE A FUNCTION that toggles class/css/visual
+  // features I want the currentlySelected character to have...
+  // ...INCLUDE THAT FUNCTION HERE <===
+};
+// END nextCharacter()
+
+// initiateEnemyPhase()
+// • Launches the opponent's turn! After each living member of The Boys has gone, then start Enemy Phase:
+// select and execute a random attack, update stats for all characters, proceed to the next character, and then initiateBattlePhase.
+///////////////////////////////////////////////////////////////////////////////////////
+const initiateEnemyPhase = () => {
+  opponent.selectAttack(); // then have current opponent select and execute an attack
+  updateAllStats(); // then updateStats for opponent + each of The Boys
+  initiateBattlePhase(); // then initiate a fresh round of battle phases for The Boys
+};
+
+// initiateBattlePhase()
+// • Kicks-off core battle logic for Supe vs The Boys. Each character will get a turn at their
+// own battle phase EACH turn. When playerIndex = 4, then opponent's turn. After they act, opponent resets playerIndex to 0 (back to M.M.)
+///////////////////////////////////////////////////////////////////////////////////////
+const initiateBattlePhase = () => {
+  if (areTheyDead() === false) {
+    // if areTheyDead() returns false... | ie ==> as long as at least one of our enemies is alive...
+    if (areWeDead() === false) {
+      // if areWeDead() returns false... | ie ==> as long as at least one of The Boys is alive...
+      if (playerIndex === 0) {
+        // if playerIndex is currently pointing at the value of | 0 |... | ie ==> if M.M. is the currentlySelected character...
+        if (mothersMilk.isDead() === false) {
+          // if M.M. is alive... | * note: we're starting our battle phase with M.M., because he sits at theBoys[0] and is thus the default value that currentlySelected points to via playerIndex
+          console.log("It's M.M's turn..."); // then console.log
+          currentlySelected = theBoys[0]; // then set currentlySelected to M.M.
+          // refreshButtons();
+
+          setTimeout(() => {
+            // then setTimeout for...
+            updateMessage(`It's M.M.'s turn...`); // then updateMessage
+          }, 1500); // will execute in ==>  | 1.5 seconds |
+
+          // *** not sure what to put here for the moment... | choosing an action at this point (***SHOULD***) will move us to the next step of Battle Phase
+        } else {
+          // if M.M. is dead...
+          nextCharacter(); // then cycle to the next character
+          updateAllStats(); // then update everyone's stats in the DOM just in case
+        }
+      } else if (playerIndex === 1) {
+        // if playerIndex is currently pointing at the value of | 1 |... | ie ==> if Butcher is the currentlySelected character...
+        if (butcher.isDead() === false) {
+          // if Butcher is alive...
+          console.log("It's Butcher's turn..."); // then console.log
+          currentlySelected = theBoys[1]; // then set currentlySelected to Butcher
+          // refreshButtons();
+
+          setTimeout(() => {
+            // then setTimeout for...
+            updateMessage(`It's Butcher's turn...`); // then updateMessage
+          }, 1500); // will execute in ==>  | 1.5 seconds |
+
+          // *** not sure what to put here for the moment... | choosing an action at this point (***SHOULD***) will move us to the next step of Battle Phase
+        } else {
+          // if Butcher is dead...
+          nextCharacter(); // then cycle to the next character
+          updateAllStats(); // then update everyone's stats in the DOM just in case
+        }
+      } else if (playerIndex === 2) {
+        // if playerIndex is currently pointing at the value of | 2 |... | ie ==> if Hughie is the currentlySelected character...
+        if (hughie.isDead() === false) {
+          //if Hughie is alive...
+          console.log("It's Hughie's turn..."); // then console.log
+          currentlySelected = theBoys[2]; // then set currentlySelected to Hughie
+          // refreshButtons();
+
+          setTimeout(() => {
+            // then setTimeout for...
+            updateMessage(`It's Hughie's turn...`); // then updateMessage
+          }, 1500); // will execute in ==>  | 1.5 seconds |
+
+          // *** not sure what to put here for the moment... | choosing an action at this point (***SHOULD***) will move us to the next step of Battle Phase
+        } else {
+          // if Hughie is dead...
+          nextCharacter(); // then cycle to the next character
+          updateAllStats(); // then update everyone's stats in the DOM just in case
+        }
+      } else if (playerIndex === 3) {
+        // if playerIndex is currently pointing at the value of | 3 |... | ie ==> if Frenchie is the currentlySelected character...
+        if (frenchie.isDead() === false) {
+          // if Frenchie is alive...
+          console.log("It's Frenchie's turn..."); // then console.log
+          currentlySelected = theBoys[3]; // then set currentlySelected to Frenchie
+          // refreshButtons();
+
+          setTimeout(() => {
+            // then setTimeout for...
+            updateMessage(`It's Frenchie's turn...`); // then updateMessage
+          }, 1500); // will execute in ==>  | 1.5 seconds |
+
+          // *** not sure what to put here for the moment... | choosing an action at this point (***SHOULD***) will move us to the next step of Battle Phase
+        } else {
+          // if Frenchie is dead...
+          nextCharacter(); // then cycle to the next character
+          updateAllStats(); // then update everyone's stats in the DOM just in case
+        }
+      } // else if (playerIndex === 4) {
+      // if player index is currently pointing at the value of | 4 |...
+      //initiateEnemyPhase(); // then initiate Enemy Phase
+      // }
+    } else {
+      // if areWeDead returns true... | ie, if every member of The Boys is dead...
+      //
+      //
+      // BATTLE LOSS CONDITION RIGHT HERE... SO... execute functions below accordingly
+      // then...
+      // endBattle()
+      // nextLevel()
+      // getNextCutscene()
+      // ...something like that...
+    }
+  } else {
+    // if areTheyDead() returns true... | ie, if all enemies are dead...
+    //
+    // BATTLE WIN CONDITION RIGHT HERE... SO... execute functions below accordingly
+    // BATTLE WIN MODAL POP UP
+    // ==> GIVE MODAL CONTINUE + QUIT (?) BUTTONS
+    // ==> Upon continue...
+    // ==> ==> ==> ***  level++ | set new level for getLevel to reference for switch...?
+    // ==> ==> ==>
+    // ==> ==> ==>
+    //
+    //
+    //
+  }
+};
+
+// END initiateBattlePhase()
+
+// battleWin()
+// • Action will be called in a situation where the battle has ended positively for The Boys.
+// Function will open a modal with options for moving on to the next level
+///////////////////////////////////////////////////////////////////////////////////////
+const battleWin = () => {
+  opponent.health = 0;
+  console.log("Your opponent has been defeated... You won!");
+  // BATTLE WIN MODAL POP UP
+};
+// END battleWin()
+
+// battleLoss()
+// • Action will be called in a situation where the battle has ended negatively for The Boys.
+///////////////////////////////////////////////////////////////////////////////////////
+const battleLoss = () => {
+  console.log("The Boys have all been defeated... You lost...");
+  // BATTLE LOSS MODAL POP UP
+};
+// END battleLoss()
+
+// refreshButtons()
+// • Helper function to make sure our action buttons are always pointing at the correct character
+///////////////////////////////////////////////////////////////////////////////////////
+refreshButtons = () => {
+  actionButton1.removeEventListener(
+    "click", // then listen for a click...
+    currentlySelected.action1.bind(currentlySelected) // then upon click... execute action1 for the currentlySelected character
+  );
+  actionButton1.addEventListener(
+    "click", // then listen for a click...
+    currentlySelected.action1.bind(currentlySelected) // then upon click... execute action1 for the currentlySelected character
+  );
+
+  actionButton2.removeEventListener(
+    "click", // then listen for a click...
+    currentlySelected.action2.bind(currentlySelected) // then upon click... execute action2 for the currentlySelected character
+  );
+  actionButton2.addEventListener(
+    "click", // then listen for a click...
+    currentlySelected.action2.bind(currentlySelected) // then upon click... execute action2 for the currentlySelected character
+  );
+
+  actionButton3.removeEventListener(
+    "click", // then listen for a click...
+    currentlySelected.action3.bind(currentlySelected) // then upon click... execute action3 for the currentlySelected character
+  );
+  actionButton3.addEventListener(
+    "click", // then listen for a click...
+    currentlySelected.action3.bind(currentlySelected) // then upon click... execute action3 for the currentlySelected character
+  );
+};
+// END refreshButtons()
+
 // getLevel()
 // • Determines which opponent we are facing dependent on what 'level' we are on. We will use
 // the level to set our case in our switch statement — each level correlates to a specific opponent.
@@ -2052,268 +2346,144 @@ const getLevel = (level) => {
 // END getLevel()
 */
 
-// nextCharacter()
-// • Allows us to easily cycle through our theBoys array | start --> end --> start |
-// via the playerIndex global variable.
-///////////////////////////////////////////////////////////////////////////////////////
-const nextCharacter = () => {
-  if (playerIndex < theBoys.length) {
-    // if playerIndex < the length of theBoys array... | * note: purposely set the comparison against the full length of the array so that we can use playerIndex of 4 to reference our enemy's turn to attack! Spicy!
-    playerIndex++; // then increment playerIndex
-    currentlySelected = theBoys[playerIndex]; // update currentlySelected
-  } else {
-    // if playerIndex > the length of theBoys array...
-    playerIndex = 0; // then reset playerIndex back to zero
-    currentlySelected = theBoys[playerIndex]; // update currenltySelected
-  }
-  // *** LATER... CREATE A FUNCTION that toggles class/css/visual
-  // features I want the currentlySelected character to have...
-  // ...INCLUDE THAT FUNCTION HERE <===
-};
-// END nextCharacter()
-
-// initiateEnemyPhase()
-// • Launches the opponent's turn! After each living member of The Boys has gone, then start Enemy Phase:
-// select and execute a random attack, update stats for all characters, proceed to the next character, and then initiateBattlePhase.
-///////////////////////////////////////////////////////////////////////////////////////
-const initiateEnemyPhase = () => {
-  setTimeout(() => {
-    // setTimeout for...
-    opponent.selectAttack(); // then have current opponent select and execute an attack
-    updateAllStats(); // then updateStats for opponent + each of The Boys
-    nextCharacter(); // then cycle to the nextCharacter | * note: this instance of nextCharacter() should always return playerIndex to 0
-    initiateBattlePhase(); // then initiate a fresh round of battle phases for The Boys
-  }, 3000); // will execute in ==>  | 3 seconds |
-};
-
-// initiateBattlePhase()
-// • Kicks-off core battle logic for Supe vs The Boys. Each character will get a turn at their
-// own battle phase EACH turn. When playerIndex = 4, then opponent's turn. After they act, opponent resets playerIndex to 0 (back to M.M.)
-///////////////////////////////////////////////////////////////////////////////////////
-const initiateBattlePhase = () => {
-  if (areTheyDead() === false) {
-    // if areTheyDead() returns false... | ie ==> as long as at least one of our enemies is alive...
-    if (areWeDead() === false) {
-      // if areWeDead() returns false... | ie ==> as long as at least one of The Boys is alive...
-      if (playerIndex === 0) {
-        // if playerIndex is currently pointing at the value of | 0 |... | ie ==> if M.M. is the currentlySelected character...
-        if (mothersMilk.isDead() === false) {
-          // if M.M. is alive... | * note: we're starting our battle phase with M.M., because he sits at theBoys[0] and is thus the default value that currentlySelected points to via playerIndex
-          console.log("It's M.M's turn..."); // then console.log
-          setTimeout(() => {
-            // then setTimeout for...
-            updateMessage(`It's M.M.'s turn...`); // then updateMessage
-          }, 3000); // will execute in ==>  | 3 seconds |
-
-          // *** not sure what to put here for the moment... | choosing an action at this point (***SHOULD***) will move us to the next step of Battle Phase
-        } else {
-          // if M.M. is dead...
-          nextCharacter(); // then cycle to the next character
-          updateAllStats(); // then update everyone's stats in the DOM just in case
-        }
-      } else if (playerIndex === 1) {
-        // if playerIndex is currently pointing at the value of | 1 |... | ie ==> if Butcher is the currentlySelected character...
-        if (butcher.isDead() === false) {
-          // if Butcher is alive...
-          console.log("It's Butcher's turn..."); // then console.log
-          setTimeout(() => {
-            // then setTimeout for...
-            updateMessage(`It's Butcher's turn...`); // then updateMessage
-          }, 3000); // will execute in ==>  | 3 seconds |
-
-          // *** not sure what to put here for the moment... | choosing an action at this point (***SHOULD***) will move us to the next step of Battle Phase
-        } else {
-          // if Butcher is dead...
-          nextCharacter(); // then cycle to the next character
-          updateAllStats(); // then update everyone's stats in the DOM just in case
-        }
-      } else if (playerIndex === 2) {
-        // if playerIndex is currently pointing at the value of | 2 |... | ie ==> if Hughie is the currentlySelected character...
-        if (hughie.isDead() === false) {
-          //if Hughie is alive...
-          console.log("It's Hughie's turn..."); // then console.log
-          setTimeout(() => {
-            // then setTimeout for...
-            updateMessage(`It's Hughie's turn...`); // then updateMessage
-          }, 3000); // will execute in ==>  | 3 seconds |
-
-          // *** not sure what to put here for the moment... | choosing an action at this point (***SHOULD***) will move us to the next step of Battle Phase
-        } else {
-          // if Hughie is dead...
-          nextCharacter(); // then cycle to the next character
-          updateAllStats(); // then update everyone's stats in the DOM just in case
-        }
-      } else if (playerIndex === 3) {
-        // if playerIndex is currently pointing at the value of | 3 |... | ie ==> if Frenchie is the currentlySelected character...
-        if (frenchie.isDead() === false) {
-          // if Frenchie is alive...
-          console.log("It's Frenchie's turn..."); // then console.log
-          setTimeout(() => {
-            // then setTimeout for...
-            updateMessage(`It's Frenchie's turn...`); // then updateMessage
-          }, 3000); // will execute in ==>  | 3 seconds |
-
-          // *** not sure what to put here for the moment... | choosing an action at this point (***SHOULD***) will move us to the next step of Battle Phase
-        } else {
-          // if Frenchie is dead...
-          nextCharacter(); // then cycle to the next character
-          updateAllStats(); // then update everyone's stats in the DOM just in case
-        }
-      } else if (playerIndex === 4) {
-        // if player index is currently pointing at the value of | 4 |...
-        initiateEnemyPhase(); // then initiate Enemy Phase
-      }
-    } else {
-      // if areWeDead returns true... | ie, if every member of The Boys is dead...
-      //
-      //
-      // BATTLE LOSS CONDITION RIGHT HERE... SO... execute functions below accordingly
-      // then...
-      // endBattle()
-      // nextLevel()
-      // getNextCutscene()
-      // ...something like that...
-    }
-  } else {
-    // if areTheyDead() returns true... | ie, if all enemies are dead...
-    //
-    // BATTLE WIN CONDITION RIGHT HERE... SO... execute functions below accordingly
-    // BATTLE WIN MODAL POP UP
-    // ==> GIVE MODAL CONTINUE + QUIT (?) BUTTONS
-    // ==> Upon continue...
-    // ==> ==> ==> ***  level++ | set new level for getLevel to reference for switch...?
-    // ==> ==> ==>
-    // ==> ==> ==>
-    //
-    //
-    //
-  }
-};
-
-// END initiateBattlePhase()
-
-// battleWin()
-// • Action will be called in a situation where the battle has ended positively for The Boys.
-// Function will open a modal with options for moving on to the next level
-///////////////////////////////////////////////////////////////////////////////////////
-const battleWin = () => {
-  opponent.health = 0;
-  // BATTLE WIN MODAL POP UP
-};
-// END battleWin()
-
-// battleLoss()
-// • Action will be called in a situation where the battle has ended negatively for The Boys.
-///////////////////////////////////////////////////////////////////////////////////////
-const battleLoss = () => {
-  // BATTLE LOSS MODAL POP UP
-};
-// END battleLoss()
-
 //////////////////////////////////////////////////
 //////                                      //////
 //////     --ACTION BUTTON DELEGATION--     //////
 //////                                      //////
 //////////////////////////////////////////////////
 
-/*
-*** currently trying to set up these action1,2,3 variables so that they I can dynamically control
-choose among each character's 3 actions, using only 3 buttons... ie, when currentlySelected = MM, action 1 = tacticalStrike,
-action 2 = field medic, and action 3 = battlefield triage | then, when currentlySelected = Butcher, I need action 1 to = giftedMarksman,
-action 2 to = brutalize, and so
-*/
+// ACTION DELEGATION
+// • use the below expressions to assign functionality to our Action 1, Action 2, and Action 3 buttons respectively.
+// Each button should to correspond to the  currentlySelected member's moveset.
+///////////////////////////////////////////////////////////////////////////////////////
 
-/*
-*** ACTION DELEGATION 
-• use the below expressions to 
-assign functionality to our Action 1, Action 2,
-and Action 3 buttons respectively.
-We want each button to correspond to the 
-currentlySelected member's moveset.
-*/
+// ** CURRENT ISSUE WITH THE BELOW IS THAT IT'S TRYING TO FIRE OFF THE FIRST COMMAND OF MM'S (THE currentlySelected) AS SOON AS THE PAGE LOADS...
 
 // // switch / case...
-// switch (theBoys[playerIndex]) {
+// switch (currentlySelected) {
 //   // if currently selected...
 //   case mothersMilk: {
 //     // is mothersMilk...
 
 //     // addEvent (actionButton1, 'click', * ATTACK FUNCTION *)
 
-//     actionButton1.removeEventListener("click", frenchie.gunRunner); // then remove any pre-exiting eventListeners from actionButton1  | * should * always be frenchie's previous addEvent
-//     actionButton1.addEventListener("click", mothersMilk.tacticalStrike); // then add MM's actionButton1 function ==> tacticalStrike()
+//     actionButton1.removeEventListener(
+//       "click",
+//       currentlySelected.gunRunner.bind(currentlySelected)
+//     ); // then remove any pre-exiting eventListeners from actionButton1  | * should * always be frenchie's previous addEvent
+//     actionButton1.addEventListener(
+//       "click",
+//       currentlySelected.tacticalStrike.bind(currentlySelected)
+//     ); // then add MM's actionButton1 function ==> tacticalStrike()
 
-//     actionButton2.removeEventListener("click", frenchie.improvisedExplosives); // then remove any pre-exiting eventListeners from actionButton2  | * should * always be frenchie's previous addEvent
-//     actionButton2.addEventListener("click", mothersMilk.fieldMedic); // then add MM's actionButton2 function ==> fieldMedic()
+//     actionButton2.removeEventListener(
+//       "click",
+//       currentlySelected.improvisedExplosives.bind(currentlySelected)
+//     ); // then remove any pre-exiting eventListeners from actionButton2  | * should * always be frenchie's previous addEvent
+//     actionButton2.addEventListener(
+//       "click",
+//       currentlySelected.fieldMedic.bind(currentlySelected)
+//     ); // then add MM's actionButton2 function ==> fieldMedic()
 
-//     actionButton3.removeEventListener("click", frenchie.spontaneousInventor); // then remove any pre-existing eventListeners from actionButton3  | * should * always be frenchie's previous addEvent
-//     actionButton3.addEventListener("click", mothersMilk.battlefieldTriage); // then add MM's actionButton3 function ==> battlefieldTriage()
+//     actionButton3.removeEventListener(
+//       "click",
+//       currentlySelected.spontaneousInventor.bind(currentlySelected)
+//     ); // then remove any pre-existing eventListeners from actionButton3  | * should * always be frenchie's previous addEvent
+//     actionButton3.addEventListener(
+//       "click",
+//       currentlySelected.battlefieldTriage.bind(currentlySelected)
+//     ); // then add MM's actionButton3 function ==> battlefieldTriage()
 //   }
 //   // if currently selected...
 //   case butcher: {
 //     // is butcher...
-//     actionButton1.removeEventListener("click", mothersMilk.tacticalStrike); // then remove any pre-exiting eventListeners from actionButton1  | * should * always be mothersMilk's previous addEvent
-//     actionButton1.addEventListener("click", butcher.giftedMarksman); // then add Butcher's actionButton1 function ==> giftedMarksman()
+//     actionButton1.removeEventListener(
+//       "click",
+//       currentlySelected.tacticalStrike.bind(currentlySelected)
+//     ); // then remove any pre-exiting eventListeners from actionButton1  | * should * always be mothersMilk's previous addEvent
+//     actionButton1.addEventListener(
+//       "click",
+//       currentlySelected.giftedMarksman.bind(currentlySelected)
+//     ); // then add Butcher's actionButton1 function ==> giftedMarksman()
 
-//     actionButton2.removeEventListener("click", mothersMilk.fieldMedic); // then remove any pre-exiting eventListeners from actionButton2   | * should * always be mothersMilk's previous addEvent
-//     actionButton2.addEventListener("click", butcher.brutalize); // then add Butcher's actionButton2 function ==> brutalize()
+//     actionButton2.removeEventListener(
+//       "click",
+//       currentlySelected.fieldMedic.bind(currentlySelected)
+//     ); // then remove any pre-exiting eventListeners from actionButton2   | * should * always be mothersMilk's previous addEvent
+//     actionButton2.addEventListener(
+//       "click",
+//       currentlySelected.brutalize.bind(currentlySelected)
+//     ); // then add Butcher's actionButton2 function ==> brutalize()
 
-//     actionButton3.removeEventListener("click", mothersMilk.battlefieldTriage); // then remove any pre-existing eventListeners from actionButton3   | * should * always be mothersMilk's previous addEvent
-//     actionButton3.addEventListener("click", butcher.diabolicalMate); // then add Butcher's actionButton3 function ==> diabolicalMate()
+//     actionButton3.removeEventListener(
+//       "click",
+//       currentlySelected.battlefieldTriage.bind(currentlySelected)
+//     ); // then remove any pre-existing eventListeners from actionButton3   | * should * always be mothersMilk's previous addEvent
+//     actionButton3.addEventListener(
+//       "click",
+//       currentlySelected.diabolicalMate.boind(currentlySelected)
+//     ); // then add Butcher's actionButton3 function ==> diabolicalMate()
 //   }
 //   // if currently selected...
 //   case hughie: {
 //     // is hughie...
-//     actionButton1.removeEventListener("click", butcher.giftedMarksman); // then remove any pre-exiting eventListeners from actionButton1  | * should * always be butcher's previous addEvent
-//     actionButton1.addEventListener("click", hughie.tacticalNous); // then add Hughie's actionButton1 function ==> tacticalNous()
+//     actionButton1.removeEventListener(
+//       "click",
+//       currentlySelected.giftedMarksman.bind(currentlySelected)
+//     ); // then remove any pre-exiting eventListeners from actionButton1  | * should * always be butcher's previous addEvent
+//     actionButton1.addEventListener(
+//       "click",
+//       currentlySelected.tacticalNous.bind(currentlySelected)
+//     ); // then add Hughie's actionButton1 function ==> tacticalNous()
 
-//     actionButton2.removeEventListener("click", butcher.brutalize); // then remove any pre-exiting eventListeners from actionButton2  | * should * always be butcher's previous addEvent
-//     actionButton2.addEventListener("click", hughie.fleetwoodMac); // then add Hughie's actionButton2 function ==> fleetwoodMac()
+//     actionButton2.removeEventListener(
+//       "click",
+//       currentlySelected.brutalize.bind(currentlySelected)
+//     ); // then remove any pre-exiting eventListeners from actionButton2  | * should * always be butcher's previous addEvent
+//     actionButton2.addEventListener(
+//       "click",
+//       currentlySelected.fleetwoodMac.bind(currentlySelected)
+//     ); // then add Hughie's actionButton2 function ==> fleetwoodMac()
 
-//     actionButton3.removeEventListener("click", butcher.diabolicalMate); // then remove any pre-existing eventListeners from actionButton3  | * should * always be butcher's previous addEvent
-//     actionButton3.addEventListener("click", hughie.letsTalk); // then add Hughie's actionButton3 function ==> letsTalk()
+//     actionButton3.removeEventListener(
+//       "click",
+//       currentlySelected.diabolicalMate.bind(currentlySelected)
+//     ); // then remove any pre-existing eventListeners from actionButton3  | * should * always be butcher's previous addEvent
+//     actionButton3.addEventListener(
+//       "click",
+//       currentlySelected.letsTalk.bind(currentlySelected)
+//     ); // then add Hughie's actionButton3 function ==> letsTalk()
 //   }
 //   // if currently selected...
 //   case frenchie: {
 //     // is frenchie...
-//     actionButton1.removeEventListener("click", hughie.tacticalNous); // then remove any pre-exiting eventListeners from actionButton1  | * should * always be hughie's previous addEvent
-//     actionButton1.addEventListener("click", frenchie.gunRunner); // then add Frenchie's actionButton1 function ==> gunRunner()
+//     actionButton1.removeEventListener(
+//       "click",
+//       currentlySelected.tacticalNous.bind(currentlySelected)
+//     ); // then remove any pre-exiting eventListeners from actionButton1  | * should * always be hughie's previous addEvent
+//     actionButton1.addEventListener(
+//       "click",
+//       currentlySelected.gunRunner.bind(currentlySelected)
+//     ); // then add Frenchie's actionButton1 function ==> gunRunner()
 
-//     actionButton2.removeEventListener("click", hughie.fleetwoodMac); // then remove any pre-exiting eventListeners from actionButton2  | * should * always be hughie's previous addEvent
-//     actionButton2.addEventListener("click", frenchie.improvisedExplosives); // then add Frenchie's actionButton2 function ==> improvisedExplosives()
+//     actionButton2.removeEventListener(
+//       "click",
+//       currentlySelected.fleetwoodMac.bind(currentlySelected)
+//     ); // then remove any pre-exiting eventListeners from actionButton2  | * should * always be hughie's previous addEvent
+//     actionButton2.addEventListener(
+//       "click",
+//       currentlySelected.improvisedExplosives.bind(currentlySelected)
+//     ); // then add Frenchie's actionButton2 function ==> improvisedExplosives()
 
-//     actionButton3.removeEventListener("click", hughie.letsTalk); // then remove any pre-existing eventListeners from actionButton3  | * should * always be hughie's previous addEvent
-//     actionButton3.addEventListener("click", frenchie.spontaneousInventor); // then add Frenchie's actionButton3 function ==> spontaneousInventor()
+//     actionButton3.removeEventListener(
+//       "click",
+//       currentlySelected.letsTalk.bind(currentlySelected)
+//     ); // then remove any pre-existing eventListeners from actionButton3  | * should * always be hughie's previous addEvent
+//     actionButton3.addEventListener(
+//       "click",
+//       currentlySelected.spontaneousInventor.bind(currentlySelected)
+//     ); // then add Frenchie's actionButton3 function ==> spontaneousInventor()
 //   }
-// }
-
-// if / else...
-// ** CURRENT ISSUE WITH THE BELOW IS THAT IT'S TRYING TO FIRE OFF THE FIRST COMMAND OF MM'S (THE currentlySelected) AS SOON AS THE PAGE LOADS...
-
-// let action1;
-// let action2;
-// let action3;
-
-// if (currentlySelected === theBoys[0]) {
-//   action1 = mothersMilk.tacticalStrike;
-//   action2 = mothersMilk.fieldMedic;
-//   action3 = mothersMilk.battlefieldTriage;
-// } else if (currentlySelected === theBoys[1]) {
-//   action1 = butcher.giftedMarksman;
-//   action2 = butcher.brutalize;
-//   action3 = butcher.diabolicalMate;
-// } else if (currentlySelected === theBoys[2]) {
-//   action1 = hughie.tacticalNous;
-//   action2 = hughie.fleetwoodMac;
-//   action3 = hughie.letsTalk;
-// } else if (currentlySelected === theBoys[3]) {
-//   action1 = frenchie.gunRunner;
-//   action2 = frenchie.improvisedExplosives;
-//   action3 = frenchie.spontaneousInventor;
-// } else {
-//   action1 = null;
-//   action2 = null;
-//   action3 = null;
 // }
 
 // END action delegation...
@@ -2338,6 +2508,7 @@ let homelanderConvoCount = 0; // global counter that affects conversation-tree w
 //////        -----BATTLE LOGIC-----        //////===============================================================
 //////                                      //////
 //////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PSEUDO:
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // // Battle Phase
@@ -2399,25 +2570,45 @@ let homelanderConvoCount = 0; // global counter that affects conversation-tree w
 
 // Action Buttons
 ///////////////////////////////////////////////////////////////////////////////////////
-// actionButton1.addEventListener("click", action1);
-// actionButton2.addEventListener("click", action2);
-// actionButton3.addEventListener("click", action3);
 
-actionButton1.addEventListener("click", mothersMilk.tacticalStrike);
-actionButton2.addEventListener("click", mothersMilk.fieldMedic);
-actionButton3.addEventListener("click", mothersMilk.battlefieldTriage);
+// target actionButton1...
+actionButton1.addEventListener(
+  "click", // then listen for a click...
+  currentlySelected.action1 // then upon click... execute action1 for the currentlySelected character
+);
+
+// target actionButton2...
+actionButton2.addEventListener(
+  "click", // then listen for a click...
+  currentlySelected.action2 // then upon click... execute action2 for the currentlySelected character
+);
+
+// target actionButton3...
+actionButton3.addEventListener(
+  "click", // then listen for a click...
+  currentlySelected.action3 // then upon click... execute action3 for the currentlySelected character
+);
 
 // Heal Buttons
 ///////////////////////////////////////////////////////////////////////////////////////
+
+// target healButton1...
 healButton1.addEventListener("click", () => {
-  healTarget = theBoys[0];
+  // listen for a click...
+  healTarget = theBoys[0]; // then select
 });
+
+// target healButton2...
 healButton2.addEventListener("click", () => {
   healTarget = theBoys[1];
 });
+
+// target healButton3...
 healButton3.addEventListener("click", () => {
   healTarget = theBoys[2];
 });
+
+// target healButton4...
 healButton4.addEventListener("click", () => {
   healTarget = theBoys[3];
 });
@@ -2432,6 +2623,7 @@ healButton4.addEventListener("click", () => {
 ///////////////////////////////////////////////////////////////////////////////////////
 getStarted.addEventListener("click", () => {
   startGame();
+  playerIndex = 0;
   toggleModal();
 });
 
