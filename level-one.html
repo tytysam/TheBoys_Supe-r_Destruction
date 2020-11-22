@@ -105,7 +105,9 @@
         </p>
         <!-- Placeholder messages for now. Circle back Post-MVP -->
         <p>Defeat all members of The Seven in order to emerge victorious!</p>
-        <button class="get-started" id="get-started">ENTER VOUGHT TOWER</button>
+        <button class="modal-button" id="get-started">
+          ENTER VOUGHT TOWER
+        </button>
       </div>
     </div>
 
@@ -114,4 +116,51 @@
       <h3></h3>
     </div>
   </body>
+
+  <!-- 
+  //
+    *** STILL NEED TO HARDCODE THE 
+    BELOW TWO MODALS INTO THE DOM 
+  //
+  -->
+
+  <!--    WINNER Modal    -->
+  <div class="modal ff-style closed" id="winner-modal">
+    <div class="rules">
+      <h3>CONGRATULATIONS</h3>
+      <p>
+        <!-- Placeholder messages for now. Circle back Post-MVP -->
+        You've succesfully stopped one of the Supes, but more members of The
+        Seven still remain!
+      </p>
+      <hr>
+      <p>
+        Would you like to proceed to the next floor of Vought Tower?
+        <br />
+        (Replenish some HP and SP)
+        <br />
+      </p>
+      <hr>
+
+      <!-- THIS BUTTON SHOULD TAKE YOU TO THE NEXT LEVEL and / or INCREMENT LEVEL -->
+      <button class="modal-button" id="next-level">NEXT LEVEL</button>
+      <!-- THIS BUTTON SHOULD TAKE YOU TO THE LOSS / RESULTS PAGE -->
+      <button class="modal-button" id="quit-level">QUIT</button>
+    </div>
+  </div>
+
+  <!--    LOSER Modal    -->
+  <div class="modal ff-style closed" id="loser-modal">
+    <div class="rules">
+      <h3>BUMMER</h3>
+      <p>
+        <!-- Placeholder messages for now. Circle back Post-MVP -->
+        You've been stopped by your opponent. Did you ever really think you stood a chance against Supes?
+      </p>
+
+      <!-- THIS BUTTON SHOULD TAKE YOU TO THE LOSS / RESULTS PAGE -->
+      <button class="modal-button" id="quit-level">QUIT</button>
+    </div>
+  </div>
+</html>
 </html>

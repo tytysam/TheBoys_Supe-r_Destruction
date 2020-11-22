@@ -280,13 +280,19 @@ div.ff-style * {
 //===========================================//
 */
 
+.modal {
+  display: block;
+}
+
 .modal.closed {
   display: none;
 }
 
-.modal {
+#welcome-modal {
+  color: #ffffff;
+  font-family: "Press Start 2P";
+  font-size: 20px;
   background-color: #dfdfdf;
-  border: 10px solid #ececec;
   padding: 30px;
   width: 65vw;
   min-width: 650px;
@@ -300,14 +306,13 @@ div.ff-style * {
   left: 0;
   right: 0;
   margin: 0 auto;
-  display: block;
 }
 
 .rules {
   font-size: 1.35rem;
 }
 
-.get-started {
+.modal-button {
   color: #ffffff;
   font-size: 1.25rem;
   background-color: #000000;
@@ -318,4 +323,58 @@ div.ff-style * {
   padding: 5px 0px 5px 0px;
   background-color: transparent;
   border-radius: 7px;
+}
+
+#message-modal {
+  color: #ffffff;
+  /* font-family: "Press Start 2P"; */
+  font-size: 20px;
+  width: 45vw;
+  min-width: 450px;
+  height: 175px;
+  position: fixed;
+  top: 20%;
+  transform: translateY(-20%);
+  padding: 30px;
+  text-align: center;
+  border-radius: 8px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+}
+
+#winner-modal {
+  color: #ffffff;
+  font-family: "Press Start 2P";
+  font-size: 14px;
+  width: 45vw;
+  min-width: 450px;
+  height: 400px;
+  position: fixed;
+  top: 20%;
+  transform: translateY(-20%);
+  padding: 30px;
+  text-align: center;
+  border-radius: 8px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+}
+
+#loser-modal {
+  color: #ffffff;
+  font-family: "Press Start 2P";
+  font-size: 14px;
+  width: 45vw;
+  min-width: 450px;
+  height: 250px;
+  position: fixed;
+  top: 20%;
+  transform: translateY(-20%);
+  padding: 30px;
+  text-align: center;
+  border-radius: 8px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
 }
