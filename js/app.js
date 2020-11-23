@@ -11,11 +11,12 @@
 // CIRCLE-BACK-TO-BONUS LIST:
 // ==========================
 // • Choose your team of 4 from a larger pool of heroes...
-// • More unique stats + moves for each character
+// • More unique stats + moves for each character (specifically the Supes!)
 // • Work on difficulty of game... Get it working first though!
 // • Multiple difficulty levels? (ie, Easy = 3 enemies/floors/battles, Medium = 5 enemies/floors/battles, Hard = all 7 enemies/floors/battles)
 // • Ability for characters to utilize a shared item pool..?
-// • Revisit ~all of the characters to thresh out their stats + methods further! (get it all working-ish first)
+// • Revisit ~all of the characters to refine their stats + methods! (get it all working-ish first)
+//
 
 // • ANIMATIONS:
 ////--> Attack animations (One general, one healing, and a few unique to common attacks like The Boys' specials?)
@@ -31,9 +32,8 @@
 // =======================================================================================
 //  ===== MVP - TO-DO ======
 // • Get the logic working lol
-// • Win modal (and everything within)
-// • Loss modal (and everything within)
 // •
+
 // • Build the rest of the enemies / levels...
 
 // =======================================================================================
@@ -239,6 +239,7 @@ class MM {
     this.maxStamina = 600; // Maximum-Stamina Value
     this.accuracy = 0.8; // Each character has a % chance of hitting each shot. Higher^ accuracy value === higher chance of successfully landing your attack/heal/action
 
+    // *** Arthur's suggested binding syntax...
     this.action1 = this.action1.bind(this);
     this.action2 = this.action2.bind(this);
     this.action3 = this.action3.bind(this);
@@ -247,6 +248,22 @@ class MM {
     // this.tacticalStrike = this.tacticalStrike.bind(this); // Binding 'this' to this action...
     // this.fieldMedic = this.fieldMedic.bind(this); // Binding 'this' to this action....
     // this.battlefieldTriage = this.battlefieldTriage.bind(this); // Binding 'this' to this action....
+    // this.addListeners = this.addListeners.bind(this);
+
+    // actionButton1.addEventListener(
+    //   "click", // then listen for a click...
+    //   this.tacticalStrike // then upon click... execute action1 for the currentlySelected character
+    // );
+
+    // actionButton2.addEventListener(
+    //   "click", // then listen for a click...
+    //   this.fieldMedic // then upon click... execute action1 for the currentlySelected character
+    // );
+
+    // actionButton3.addEventListener(
+    //   "click", // then listen for a click...
+    //   this.battlefieldTriage // then upon click... execute action1 for the currentlySelected character
+    // );
   }
 
   //////////////////////////////////////////////////
@@ -254,6 +271,40 @@ class MM {
   //////    -----SUPPLEMENTAL METHODS-----    //////
   //////                                      //////
   //////////////////////////////////////////////////
+
+  // addListeners() {
+  //   actionButton1.addEventListener(
+  //     "click", // then listen for a click...
+  //     this.tacticalStrike // then upon click... execute action1 for the currentlySelected character
+  //   );
+
+  //   actionButton2.addEventListener(
+  //     "click", // then listen for a click...
+  //     this.fieldMedic // then upon click... execute action1 for the currentlySelected character
+  //   );
+
+  //   actionButton3.addEventListener(
+  //     "click", // then listen for a click...
+  //     this.battlefieldTriage // then upon click... execute action1 for the currentlySelected character
+  //   );
+  // }
+
+  // removeListeners() {
+  //   actionButton1.removeEventListener(
+  //     "click", // then listen for a click...
+  //     this.tacticalStrike // then upon click... execute action1 for the currentlySelected character
+  //   );
+
+  //   actionButton2.removeEventListener(
+  //     "click", // then listen for a click...
+  //     this.fieldMedic // then upon click... execute action1 for the currentlySelected character
+  //   );
+
+  //   actionButton3.removeEventListener(
+  //     "click", // then listen for a click...
+  //     this.battlefieldTriage // then upon click... execute action1 for the currentlySelected character
+  //   );
+  // }
 
   // updateStats()
   // • At the end of every round and enemy attack, this updateStats() method will push stat updates for each character's Health Points and Stamina Points
@@ -305,6 +356,9 @@ class MM {
   // * note: had to change the names of each character's CORE actions due to binding issues...
   // ==> should now be able to dynamically update our Action Buttons
   action1() {
+    // this.removeListeners();
+    // butcher.addListeners();
+
     let staminaCost = 20; // bind temporary variable of staminaCost to this attack
     let attackDamage = 50; // bind temporary variable of attackDamage to this attack
 
@@ -348,6 +402,8 @@ class MM {
   // * note: had to change the names of each character's CORE actions due to binding issues...
   // ==> should now be able to dynamically update our Action Buttons
   action2() {
+    // this.removeListeners();
+
     // This skill targets healTarget, a global variable that references one of the boys in theBoys array
     // healTarget is selected via the four heal-target-select-buttons below the 3 main action buttons
 
@@ -418,6 +474,8 @@ class MM {
   // * note: had to change the names of each character's CORE actions due to binding issues...
   // ==> should now be able to dynamically update our Action Buttons
   action3() {
+    // this.removeListeners();
+
     // Passing healTarget, a global variable, as the argument | healTarget references one of the boys in theBoys array
 
     let staminaCost = 75; // bind temporary variable of staminaCost to this skill
@@ -484,6 +542,7 @@ class Butcher {
     this.maxStamina = 500; // Maximum-Stamina Value
     this.accuracy = 0.7; // Each character has a % chance of hitting each shot. Higher^ accuracy value === higher chance of successfully landing your attack/heal/action
 
+    // *** Arthur's suggested binding syntax...
     this.action1 = this.action1.bind(this);
     this.action2 = this.action2.bind(this);
     this.action3 = this.action3.bind(this);
@@ -492,6 +551,25 @@ class Butcher {
     // this.giftedMarksman = this.giftedMarksman.bind(this); // Binding 'this' to this action...
     // this.brutalize = this.brutalize.bind(this); // Binding 'this' to this action....
     // this.diabolicalMate = this.diabolicalMate.bind(this); // Binding 'this' to this action....
+    // this.addListeners = this.addListeners.bind(this);
+
+    // actionButton1.addEventListener(
+    //   "click",
+    //   async () => {
+    //     await mothersMilk.tacticalStrike;
+    //     this.giftedMarksman; // then upon click... execute action1 for the currentlySelected character
+    //   } // then listen for a click...
+    // );
+
+    // actionButton2.addEventListener(
+    //   "click", // then listen for a click...
+    //   this.brutalize // then upon click... execute action1 for the currentlySelected character
+    // );
+
+    // actionButton3.addEventListener(
+    //   "click", // then listen for a click...
+    //   this.diabolicalMate // then upon click... execute action1 for the currentlySelected character
+    // );
   }
 
   //////////////////////////////////////////////////
@@ -499,6 +577,40 @@ class Butcher {
   //////    -----SUPPLEMENTAL METHODS-----    //////
   //////                                      //////
   //////////////////////////////////////////////////
+
+  // addListeners() {
+  //   actionButton1.addEventListener(
+  //     "click", // then listen for a click...
+  //     this.giftedMarksman // then upon click... execute action1 for the currentlySelected character
+  //   );
+
+  //   actionButton2.addEventListener(
+  //     "click", // then listen for a click...
+  //     this.brutalize // then upon click... execute action1 for the currentlySelected character
+  //   );
+
+  //   actionButton3.addEventListener(
+  //     "click", // then listen for a click...
+  //     this.diabolicalMate // then upon click... execute action1 for the currentlySelected character
+  //   );
+  // }
+
+  // removeListeners() {
+  //   actionButton1.removeEventListener(
+  //     "click", // then listen for a click...
+  //     this.giftedMarksman // then upon click... execute action1 for the currentlySelected character
+  //   );
+
+  //   actionButton2.removeEventListener(
+  //     "click", // then listen for a click...
+  //     this.brutalize // then upon click... execute action1 for the currentlySelected character
+  //   );
+
+  //   actionButton3.removeEventListener(
+  //     "click", // then listen for a click...
+  //     this.diabolicalMate // then upon click... execute action1 for the currentlySelected character
+  //   );
+  // }
 
   // updateStats()
   // • At the end of every round and enemy attack, this updateStats() method will push stat updates for each character's Health Points and Stamina Points
@@ -553,6 +665,9 @@ class Butcher {
   // * note: had to change the names of each character's CORE actions due to binding issues...
   // ==> should now be able to dynamically update our Action Buttons
   action1() {
+    // this.removeListeners();
+    // hughie.addEventListener();
+
     let staminaCost = 10; // bind temporary variable of staminaCost to this attack
     let attackDamage = 70; // bind temporary variable fo attackDamage to this attack
 
@@ -594,6 +709,9 @@ class Butcher {
   // * note: had to change the names of each character's CORE actions due to binding issues...
   // ==> should now be able to dynamically update our Action Buttons
   action2() {
+    // this.removeListeners();
+    // hughie.addEventListener();
+
     let staminaCost = 25; // bind temporary variable of staminaCost to this attack
     let attackDamage = 135; // bind temporary variable of attackDamage to this attack
 
@@ -635,6 +753,9 @@ class Butcher {
   // * note: had to change the names of each character's CORE actions due to binding issues...
   // ==> should now be able to dynamically update our Action Buttons
   action3() {
+    // this.removeListeners();
+    // hughie.addListeners();
+
     let staminaCost = 60; // bind temporary variable staminaCost to this attack
     let attackDamage = 200; // bind temporary variable attackDamage to this attack
 
@@ -690,6 +811,7 @@ class Hughie {
     this.maxStamina = 1000; // Maximum-Stamina Value
     this.accuracy = 0.9; // Each character has a % chance of hitting each shot. Higher^ accuracy value === higher chance of successfully landing your attack/heal/action
 
+    // *** Arthur's suggested binding syntax...
     this.action1 = this.action1.bind(this);
     this.action2 = this.action2.bind(this);
     this.action3 = this.action3.bind(this);
@@ -705,6 +827,40 @@ class Hughie {
   //////    -----SUPPLEMENTAL METHODS-----    //////
   //////                                      //////
   //////////////////////////////////////////////////
+
+  // addListeners() {
+  //   actionButton1.addEventListener(
+  //     "click", // then listen for a click...
+  //     this.tacticalStrike // then upon click... execute action1 for the currentlySelected character
+  //   );
+
+  //   actionButton2.addEventListener(
+  //     "click", // then listen for a click...
+  //     this.fieldMedic // then upon click... execute action1 for the currentlySelected character
+  //   );
+
+  //   actionButton3.addEventListener(
+  //     "click", // then listen for a click...
+  //     this.battlefieldTriage // then upon click... execute action1 for the currentlySelected character
+  //   );
+  // }
+
+  // removeListeners() {
+  //   actionButton1.removeEventListener(
+  //     "click", // then listen for a click...
+  //     this.tacticalStrike // then upon click... execute action1 for the currentlySelected character
+  //   );
+
+  //   actionButton2.removeEventListener(
+  //     "click", // then listen for a click...
+  //     this.fieldMedic // then upon click... execute action1 for the currentlySelected character
+  //   );
+
+  //   actionButton3.removeEventListener(
+  //     "click", // then listen for a click...
+  //     this.battlefieldTriage // then upon click... execute action1 for the currentlySelected character
+  //   );
+  // }
 
   // updateStats()
   // • At the end of every round and enemy attack, this updateStats() method will push stat updates for each character's Health Points and Stamina Points
@@ -988,6 +1144,7 @@ class Frenchie {
     this.maxStamina = 550; // Maximum-Stamina Value
     this.accuracy = 0.8; // Each character has a % chance of hitting each shot. Higher^ accuracy value === higher chance of successfully landing your attack/heal/action
 
+    // *** Arthur's suggested binding syntax...
     this.action1 = this.action1.bind(this);
     this.action2 = this.action2.bind(this);
     this.action3 = this.action3.bind(this);
@@ -2107,7 +2264,38 @@ const checkIfHit = (ally) => {
 const nextCharacter = () => {
   if (playerIndex < theBoys.length) {
     // if playerIndex < the length of theBoys array... | ie ==> as long as playerIndex < 4 | * note: purposely set the comparison against the full length of the array so that we can use playerIndex of 4 to reference our enemy's turn to attack! Spicy!
+
+    // *************************
+    // REMOVE EVENT LISTENERS
+    // actionButton1.removeEventListener(
+    //   "click",
+    //   currentlySelected.action1.bind(currentlySelected)
+    // );
+    // actionButton2.removeEventListener(
+    //   "click",
+    //   currentlySelected.action2.bind(currentlySelected)
+    // );
+    // actionButton3.removeEventListener(
+    //   "click",
+    //   currentlySelected.action3.bind(currentlySelected)
+    // );
+
     playerIndex++; // then increment playerIndex
+
+    // *************************
+    // ADD EVENT LISTENERS
+    // actionButton1.addEventListener(
+    //   "click",
+    //   currentlySelected.action1.bind(currentlySelected)
+    // );
+    // actionButton2.addEventListener(
+    //   "click",
+    //   currentlySelected.action2.bind(currentlySelected)
+    // );
+    // actionButton3.addEventListener(
+    //   "click",
+    //   currentlySelected.action3.bind(currentlySelected)
+    // );
   } else {
     // if playerIndex > the length of theBoys array... | ie ==> if playerIndex >= 4
     initiateEnemyPhase(); // then start Enemy Phase |
@@ -2145,6 +2333,7 @@ const initiateBattlePhase = () => {
         if (mothersMilk.isDead() === false) {
           // if M.M. is alive... | * note: we're starting our battle phase with M.M., because he sits at theBoys[0] and is thus the default value that currentlySelected points to via playerIndex
           console.log("It's M.M's turn..."); // then console.log
+          // ADD EVENT LISTENERS???
           currentlySelected = theBoys[0]; // then set currentlySelected to M.M.
           // refreshButtons();
 
@@ -2218,7 +2407,7 @@ const initiateBattlePhase = () => {
         }
       } // else if (playerIndex === 4) {
       // if player index is currently pointing at the value of | 4 |...
-      //initiateEnemyPhase(); // then initiate Enemy Phase
+      // initiateEnemyPhase(); // then initiate Enemy Phase
       // }
     } else {
       // if areWeDead returns true... | ie, if every member of The Boys is dead...
@@ -2226,14 +2415,15 @@ const initiateBattlePhase = () => {
       //
       // BATTLE LOSS CONDITION RIGHT HERE... SO... execute functions below accordingly
       // then...
-      // endBattle()
+      // battleLoss();
       // nextLevel()
       // getNextCutscene()
       // ...something like that...
     }
   } else {
     // if areTheyDead() returns true... | ie, if all enemies are dead...
-    //
+
+    battleWin();
     // BATTLE WIN CONDITION RIGHT HERE... SO... execute functions below accordingly
     // BATTLE WIN MODAL POP UP
     // ==> GIVE MODAL CONTINUE + QUIT (?) BUTTONS
@@ -2266,40 +2456,43 @@ const battleWin = () => {
 const battleLoss = () => {
   console.log("The Boys have all been defeated... You lost...");
   // BATTLE LOSS MODAL POP UP
+  // need to add modal to the DOM
+  // need to add a function to open the modal (could just add class ~here)
+  // need to
 };
 // END battleLoss()
 
 // refreshButtons()
 // • Helper function to make sure our action buttons are always pointing at the correct character
 ///////////////////////////////////////////////////////////////////////////////////////
-refreshButtons = () => {
-  actionButton1.removeEventListener(
-    "click", // then listen for a click...
-    currentlySelected.action1.bind(currentlySelected) // then upon click... execute action1 for the currentlySelected character
-  );
-  actionButton1.addEventListener(
-    "click", // then listen for a click...
-    currentlySelected.action1.bind(currentlySelected) // then upon click... execute action1 for the currentlySelected character
-  );
+// refreshButtons = () => {
+//   // actionButton1.removeEventListener(
+//   //   "click", // then listen for a click...
+//   //   currentlySelected.action1.bind(currentlySelected) // then upon click... execute action1 for the currentlySelected character
+//   // );
+//   actionButton1.addEventListener(
+//     "click", // then listen for a click...
+//     currentlySelected.action1.bind(currentlySelected) // then upon click... execute action1 for the currentlySelected character
+//   );
 
-  actionButton2.removeEventListener(
-    "click", // then listen for a click...
-    currentlySelected.action2.bind(currentlySelected) // then upon click... execute action2 for the currentlySelected character
-  );
-  actionButton2.addEventListener(
-    "click", // then listen for a click...
-    currentlySelected.action2.bind(currentlySelected) // then upon click... execute action2 for the currentlySelected character
-  );
+//   // actionButton2.removeEventListener(
+//   //   "click", // then listen for a click...
+//   //   currentlySelected.action2.bind(currentlySelected) // then upon click... execute action2 for the currentlySelected character
+//   // );
+//   actionButton2.addEventListener(
+//     "click", // then listen for a click...
+//     currentlySelected.action2.bind(currentlySelected) // then upon click... execute action2 for the currentlySelected character
+//   );
 
-  actionButton3.removeEventListener(
-    "click", // then listen for a click...
-    currentlySelected.action3.bind(currentlySelected) // then upon click... execute action3 for the currentlySelected character
-  );
-  actionButton3.addEventListener(
-    "click", // then listen for a click...
-    currentlySelected.action3.bind(currentlySelected) // then upon click... execute action3 for the currentlySelected character
-  );
-};
+//   // actionButton3.removeEventListener(
+//   //   "click", // then listen for a click...
+//   //   currentlySelected.action3.bind(currentlySelected) // then upon click... execute action3 for the currentlySelected character
+//   // );
+//   actionButton3.addEventListener(
+//     "click", // then listen for a click...
+//     currentlySelected.action3.bind(currentlySelected) // then upon click... execute action3 for the currentlySelected character
+//   );
+// };
 // END refreshButtons()
 
 // getLevel()
@@ -2572,22 +2765,37 @@ let homelanderConvoCount = 0; // global counter that affects conversation-tree w
 ///////////////////////////////////////////////////////////////////////////////////////
 
 // target actionButton1...
-actionButton1.addEventListener(
-  "click", // then listen for a click...
-  currentlySelected.action1 // then upon click... execute action1 for the currentlySelected character
-);
+// actionButton1.addEventListener(
+//   "click", // then listen for a click...
+//   currentlySelected.action1 // then upon click... execute action1 for the currentlySelected character
+// );
 
-// target actionButton2...
-actionButton2.addEventListener(
-  "click", // then listen for a click...
-  currentlySelected.action2 // then upon click... execute action2 for the currentlySelected character
-);
+actionButton1.addEventListener("click", () => {
+  const player = currentlySelected;
+  player.action1();
+});
 
-// target actionButton3...
-actionButton3.addEventListener(
-  "click", // then listen for a click...
-  currentlySelected.action3 // then upon click... execute action3 for the currentlySelected character
-);
+actionButton2.addEventListener("click", () => {
+  const player = currentlySelected;
+  player.action2();
+});
+
+actionButton3.addEventListener("click", () => {
+  const player = currentlySelected;
+  player.action3();
+});
+
+// // target actionButton2...
+// actionButton2.addEventListener(
+//   "click", // then listen for a click...
+//   currentlySelected.action2 // then upon click... execute action2 for the currentlySelected character
+// );
+
+// // target actionButton3...
+// actionButton3.addEventListener(
+//   "click", // then listen for a click...
+//   currentlySelected.action3 // then upon click... execute action3 for the currentlySelected character
+// );
 
 // Heal Buttons
 ///////////////////////////////////////////////////////////////////////////////////////
