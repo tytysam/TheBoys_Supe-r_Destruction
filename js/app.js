@@ -12,7 +12,6 @@
 // ==========================
 // • Choose your team of 4 from a larger pool of heroes...
 // • More unique stats + moves for each character (specifically the Supes!)
-// • Work on difficulty of game... Get it working first though!
 // • Multiple difficulty levels? (ie, Easy = 3 enemies/floors/battles, Medium = 5 enemies/floors/battles, Hard = all 7 enemies/floors/battles)
 // • Ability for characters to utilize a shared item pool..?
 // • Revisit ~all of the characters to refine their stats + methods! (get it all working-ish first)
@@ -22,19 +21,27 @@
 ////--> Attack animations (One general, one healing, and a few unique to common attacks like The Boys' specials?)
 ////--> Add a class toggle that visually distinguishes the "current" character from the others (shifts them further in-screen like in FF + highlight their name?) (ie -> selectedChar function that wraps your player move-selection function... )
 ////--> Cutscenes: Slide in each character card (full-width container, fixed-toward-bottom for Boys, fixed-toward-top for Supes; 8bit images to left for Boys, to right for Supes; commentary text opposite 8bit image)
-////-->
+////--> Animations for emphasis all over (backgrounds, attacks, cutscenes, page transitions, ...)
 
 // • ADDITIONAL GRAPHICS:
-////-->
-////-->
+////--> Refine your 8bit renders, some of them came out more rough than others...
 ////-->
 
 // =======================================================================================
 //  ===== MVP - TO-DO ======
+// Saturday
 // • Get the logic working lol
-// •
+// • Those fucking buttons, man... figure out what is up with the passing of 'this'
 
+// =======================================================================================
+//  ===== NEXT... ======
+// • game-instructions.html
+// • style modals, clean up css, clean up styling + refine
+
+// • Hover Modals (hover over the action buttons to have a combat pane pop up that gives a brief description of the action  |  hover over the healTarget selectors to have another little pane pop up and tell people what they hell they are)
 // • Build the rest of the enemies / levels...
+// • Cutscenes ( before level 1 + between each level = ... 7. (8 if we do a win cutscene... ))
+// •
 
 // =======================================================================================
 // =======================================================================================
@@ -43,6 +50,12 @@
 //
 // =======================================================================================
 // =======================================================================================
+
+/////////////////////////////////////////////////
+//////              ---AUDIO---            //////
+/////////////////////////////////////////////////
+const audioCommonBattle = document.getElementById("common-battle");
+audioCommonBattle.volume = 0.4; // set a default "won't-accidentally-blow-someone's-ear's-out" volume
 
 //////////////////////////////////////////////////
 //////                                      //////
@@ -81,6 +94,10 @@ const healButton4 = document.getElementById("btn-heal-4");
 ///////////////////////////////////////////////////////////////////////////////////////
 const getStarted = document.getElementById("get-started");
 
+// Next Level Button on Battle Win Modal | calls getNextLevel() and...
+///////////////////////////////////////////////////////////////////////////////////////
+const nextLevel = document.getElementById("next-level");
+
 //////////////////////////////////////////////////
 //////                                      //////
 //////           -----MODALS-----           //////
@@ -94,6 +111,14 @@ const welcomeModal = document.getElementById("welcome-modal");
 // Core gameplay-communication window. | Pops up when prompted by updatedMessage()
 ///////////////////////////////////////////////////////////////////////////////////////
 const message = document.getElementById("message-modal");
+
+// On-win modal | Pops up when prompted by battleWin()
+///////////////////////////////////////////////////////////////////////////////////////
+const winWindow = document.getElementById("winner-modal");
+
+// On-loss modal | Pops up when prompted by battleLoss()
+///////////////////////////////////////////////////////////////////////////////////////
+const lossWindow = document.getElementById("loser-modal");
 
 /////////////////////////////////////////////////
 //////        ---ON-HOVER MODALS---        //////
@@ -117,6 +142,10 @@ const updateMessage = (text) => {
   message.classList.toggle("closed");
 };
 
+// ***
+// ****** Too many toggles. Will refactor post-MVP
+// ***
+
 // Enables us to click-to-close our updateMessage window
 ///////////////////////////////////////////////////////////////////////////////////////
 const clearMessage = () => {
@@ -125,11 +154,22 @@ const clearMessage = () => {
 };
 
 // Toggle helper function attached to Get Started Button
-// refactor to seek target and be able to close multiple modals...?
 ///////////////////////////////////////////////////////////////////////////////////////
 const toggleModal = () => {
   // helper function to remove our welcome modal
   welcomeModal.classList.toggle("closed");
+};
+
+// Toggle for winWindow
+///////////////////////////////////////////////////////////////////////////////////////
+const toggleWinWindow = () => {
+  winWindow.classList.toggle("closed");
+};
+
+// Toggle for lossWindow
+///////////////////////////////////////////////////////////////////////////////////////
+const toggleLossWindow = () => {
+  lossWindow.classList.toggle("closed");
 };
 
 // END HELPER FUNCTIONS
@@ -152,7 +192,7 @@ let theBoys = [];
 
 // Array that will house our enemies, The Supes
 ///////////////////////////////////////////////////////////////////////////////////////
-// let theSupes = [];
+let theSupes = [];
 
 // =======================================================================================
 // =======================================================================================
@@ -230,40 +270,24 @@ let theBoys = [];
 ///////////////////////////////////////////////////////////////////////////////////////
 class MM {
   // Initialize constructor
-  // * note: non-ES6 parent-extension ==> function MM(name, health, maxHealth, ...) {Humans.call(this, name, health, maxHealth, ...);} | cont... | MM.prototype = Object.create(Human.prototype); | cont... | MM.prototype.constructor = MM | in other words, a function for the subclass MM needs to be created. since MM is going to inherit the characteristics and behaviors of Humans, we must call the Humans' constructor function inside MM's constructor (<== this call right here does the same thing as super() in ES6). We also need to explicitly pass our "this" reference to the Humans class to ensure the call was made from our MM class. FURTHERMORE (*whew*) we need to set the MM function's prototype as a new object created from the Humans' prototype. In doing this, we are overriding MM's prototype object. Hence, we need to set the constructor of MM explicitly. | <== THESE steps take care of setting the MM class as a subclass of our Humans class
   constructor() {
     this.name = "Mother's Milk"; // Character Name
     this.health = 600; // Current-Health Value
     this.maxHealth = 600; // Maximum-Health Value
-    this.stamina = 600; // Current-Stamina Value
-    this.maxStamina = 600; // Maximum-Stamina Value
+    this.stamina = 1000; // Current-Stamina Value
+    this.maxStamina = 1000; // Maximum-Stamina Value
     this.accuracy = 0.8; // Each character has a % chance of hitting each shot. Higher^ accuracy value === higher chance of successfully landing your attack/heal/action
 
-    // *** Arthur's suggested binding syntax...
-    this.action1 = this.action1.bind(this);
-    this.action2 = this.action2.bind(this);
-    this.action3 = this.action3.bind(this);
+    // Action binding | allows us to reference 'this' via an asynchronous call (in this case ==> event listener)
+    this.action1 = this.action1.bind(this); // bind M.M.'s action1 to ==> tacticalStrike()
+    this.action2 = this.action2.bind(this); // bind M.M.'s action2 to ==> fieldMedic()
+    this.action3 = this.action3.bind(this); // bind M.M.'s action3 to ==> battlefieldTriage
 
     // *** Ended up approaching binding from a different angle...
     // this.tacticalStrike = this.tacticalStrike.bind(this); // Binding 'this' to this action...
     // this.fieldMedic = this.fieldMedic.bind(this); // Binding 'this' to this action....
     // this.battlefieldTriage = this.battlefieldTriage.bind(this); // Binding 'this' to this action....
     // this.addListeners = this.addListeners.bind(this);
-
-    // actionButton1.addEventListener(
-    //   "click", // then listen for a click...
-    //   this.tacticalStrike // then upon click... execute action1 for the currentlySelected character
-    // );
-
-    // actionButton2.addEventListener(
-    //   "click", // then listen for a click...
-    //   this.fieldMedic // then upon click... execute action1 for the currentlySelected character
-    // );
-
-    // actionButton3.addEventListener(
-    //   "click", // then listen for a click...
-    //   this.battlefieldTriage // then upon click... execute action1 for the currentlySelected character
-    // );
   }
 
   //////////////////////////////////////////////////
@@ -271,40 +295,6 @@ class MM {
   //////    -----SUPPLEMENTAL METHODS-----    //////
   //////                                      //////
   //////////////////////////////////////////////////
-
-  // addListeners() {
-  //   actionButton1.addEventListener(
-  //     "click", // then listen for a click...
-  //     this.tacticalStrike // then upon click... execute action1 for the currentlySelected character
-  //   );
-
-  //   actionButton2.addEventListener(
-  //     "click", // then listen for a click...
-  //     this.fieldMedic // then upon click... execute action1 for the currentlySelected character
-  //   );
-
-  //   actionButton3.addEventListener(
-  //     "click", // then listen for a click...
-  //     this.battlefieldTriage // then upon click... execute action1 for the currentlySelected character
-  //   );
-  // }
-
-  // removeListeners() {
-  //   actionButton1.removeEventListener(
-  //     "click", // then listen for a click...
-  //     this.tacticalStrike // then upon click... execute action1 for the currentlySelected character
-  //   );
-
-  //   actionButton2.removeEventListener(
-  //     "click", // then listen for a click...
-  //     this.fieldMedic // then upon click... execute action1 for the currentlySelected character
-  //   );
-
-  //   actionButton3.removeEventListener(
-  //     "click", // then listen for a click...
-  //     this.battlefieldTriage // then upon click... execute action1 for the currentlySelected character
-  //   );
-  // }
 
   // updateStats()
   // • At the end of every round and enemy attack, this updateStats() method will push stat updates for each character's Health Points and Stamina Points
@@ -352,17 +342,11 @@ class MM {
 
   ////// TACTICAL STRIKE – Basic attack on enemy. DAMAGE+, STAMINA-
   ///////////////////////////////////////////////////////////////////////////////////////
-
   // * note: had to change the names of each character's CORE actions due to binding issues...
   // ==> should now be able to dynamically update our Action Buttons
   action1() {
-    // this.removeListeners();
-    // butcher.addListeners();
-
     let staminaCost = 20; // bind temporary variable of staminaCost to this attack
     let attackDamage = 50; // bind temporary variable of attackDamage to this attack
-
-    console.log(this.stamina);
 
     if (this.stamina >= staminaCost) {
       // if current stamina >= the required stamina for this attack...
@@ -398,12 +382,9 @@ class MM {
 
   ////// FIELD MEDIC – Basic heal command. Targets one individual, heals moderate amount. HEAL+, STAMINA-
   ///////////////////////////////////////////////////////////////////////////////////////
-
   // * note: had to change the names of each character's CORE actions due to binding issues...
   // ==> should now be able to dynamically update our Action Buttons
   action2() {
-    // this.removeListeners();
-
     // This skill targets healTarget, a global variable that references one of the boys in theBoys array
     // healTarget is selected via the four heal-target-select-buttons below the 3 main action buttons
 
@@ -470,12 +451,9 @@ class MM {
 
   ////// *Special*: BATTLEFIELD TRIAGE – FOR A COST... M.M. can use his skills as a combat medic to revive one teammate. If @ 0 HP, revive (like a phoenix down, with ~some health). HEAL+++, STAMINA---
   ///////////////////////////////////////////////////////////////////////////////////////
-
   // * note: had to change the names of each character's CORE actions due to binding issues...
   // ==> should now be able to dynamically update our Action Buttons
   action3() {
-    // this.removeListeners();
-
     // Passing healTarget, a global variable, as the argument | healTarget references one of the boys in theBoys array
 
     let staminaCost = 75; // bind temporary variable of staminaCost to this skill
@@ -538,38 +516,20 @@ class Butcher {
     this.name = "Butcher"; // Character Name
     this.health = 800; // Current-Health Value
     this.maxHealth = 800; // Maximum-Health Value
-    this.stamina = 500; // Current-Stamina Value
-    this.maxStamina = 500; // Maximum-Stamina Value
+    this.stamina = 1000; // Current-Stamina Value
+    this.maxStamina = 1000; // Maximum-Stamina Value
     this.accuracy = 0.7; // Each character has a % chance of hitting each shot. Higher^ accuracy value === higher chance of successfully landing your attack/heal/action
 
-    // *** Arthur's suggested binding syntax...
-    this.action1 = this.action1.bind(this);
-    this.action2 = this.action2.bind(this);
-    this.action3 = this.action3.bind(this);
+    // Action binding | allows us to reference 'this' via an asynchronous call (in this case ==> event listener)
+    this.action1 = this.action1.bind(this); // binds Butcher's action1 to ==> giftedMarksman()
+    this.action2 = this.action2.bind(this); // binds Butcher's action2 to ==> brutalize()
+    this.action3 = this.action3.bind(this); // binds Butcher's action3 to ==> diabolicalMate()
 
     // *** Ended up approaching binding from a different angle...
     // this.giftedMarksman = this.giftedMarksman.bind(this); // Binding 'this' to this action...
     // this.brutalize = this.brutalize.bind(this); // Binding 'this' to this action....
     // this.diabolicalMate = this.diabolicalMate.bind(this); // Binding 'this' to this action....
     // this.addListeners = this.addListeners.bind(this);
-
-    // actionButton1.addEventListener(
-    //   "click",
-    //   async () => {
-    //     await mothersMilk.tacticalStrike;
-    //     this.giftedMarksman; // then upon click... execute action1 for the currentlySelected character
-    //   } // then listen for a click...
-    // );
-
-    // actionButton2.addEventListener(
-    //   "click", // then listen for a click...
-    //   this.brutalize // then upon click... execute action1 for the currentlySelected character
-    // );
-
-    // actionButton3.addEventListener(
-    //   "click", // then listen for a click...
-    //   this.diabolicalMate // then upon click... execute action1 for the currentlySelected character
-    // );
   }
 
   //////////////////////////////////////////////////
@@ -578,46 +538,9 @@ class Butcher {
   //////                                      //////
   //////////////////////////////////////////////////
 
-  // addListeners() {
-  //   actionButton1.addEventListener(
-  //     "click", // then listen for a click...
-  //     this.giftedMarksman // then upon click... execute action1 for the currentlySelected character
-  //   );
-
-  //   actionButton2.addEventListener(
-  //     "click", // then listen for a click...
-  //     this.brutalize // then upon click... execute action1 for the currentlySelected character
-  //   );
-
-  //   actionButton3.addEventListener(
-  //     "click", // then listen for a click...
-  //     this.diabolicalMate // then upon click... execute action1 for the currentlySelected character
-  //   );
-  // }
-
-  // removeListeners() {
-  //   actionButton1.removeEventListener(
-  //     "click", // then listen for a click...
-  //     this.giftedMarksman // then upon click... execute action1 for the currentlySelected character
-  //   );
-
-  //   actionButton2.removeEventListener(
-  //     "click", // then listen for a click...
-  //     this.brutalize // then upon click... execute action1 for the currentlySelected character
-  //   );
-
-  //   actionButton3.removeEventListener(
-  //     "click", // then listen for a click...
-  //     this.diabolicalMate // then upon click... execute action1 for the currentlySelected character
-  //   );
-  // }
-
   // updateStats()
   // • At the end of every round and enemy attack, this updateStats() method will push stat updates for each character's Health Points and Stamina Points
   ///////////////////////////////////////////////////////////////////////////////////////
-
-  // * note: had to change the names of each character's CORE actions due to binding issues...
-  // ==> should now be able to dynamically update our Action Buttons
   updateStats() {
     // update current HP and SP in the DOM
     butcherStats.innerHTML = `<h2>BUTCHER <span>HP ${this.health} / ${this.maxHealth}</span><span>SP ${this.stamina} / ${this.maxStamina}</span></h2>`;
@@ -661,13 +584,9 @@ class Butcher {
 
   ////// GIFTED MARKSMAN – Basic attack. Butcher should be our strongest character so, Damage+ means a little extra for him... DAMAGE+, STAMINA-
   ///////////////////////////////////////////////////////////////////////////////////////
-
   // * note: had to change the names of each character's CORE actions due to binding issues...
   // ==> should now be able to dynamically update our Action Buttons
   action1() {
-    // this.removeListeners();
-    // hughie.addEventListener();
-
     let staminaCost = 10; // bind temporary variable of staminaCost to this attack
     let attackDamage = 70; // bind temporary variable fo attackDamage to this attack
 
@@ -680,7 +599,7 @@ class Butcher {
         opponent.health -= attackDamage; // then decrease the target's health by attack damage
         // then updateMessage()
         updateMessage(
-          `Butcher hit ${opponent.name} for ${attackDamage} damage!`
+          `Great shot! Butcher tagged ${opponent.name} for ${attackDamage} damage!`
         );
       } else {
         // if our attack missed the enemy...
@@ -705,13 +624,9 @@ class Butcher {
 
   ////// BRUTALIZE – Medium attack. Mo' stamina mo' damage, baby. DAMAGE++, STAMINA--
   ///////////////////////////////////////////////////////////////////////////////////////
-
   // * note: had to change the names of each character's CORE actions due to binding issues...
   // ==> should now be able to dynamically update our Action Buttons
   action2() {
-    // this.removeListeners();
-    // hughie.addEventListener();
-
     let staminaCost = 25; // bind temporary variable of staminaCost to this attack
     let attackDamage = 135; // bind temporary variable of attackDamage to this attack
 
@@ -724,7 +639,7 @@ class Butcher {
         opponent.health -= attackDamage; // then decrease the target's health by attack damage
         // then updateMessage()
         updateMessage(
-          `Butcher hit ${opponent.name} for ${attackDamage} damage!`
+          `Bloody hell — Butcher hit ${opponent.name} for ${attackDamage} damage!`
         );
       } else {
         // if our attack missed the enemy...
@@ -749,13 +664,9 @@ class Butcher {
 
   ////// *Special*: F*CKIN DIABOLICAL MATE – FOR A COST... Butcher can put his years in the British SAS to use eviscerating (*ouch*) his opponents. DAMAGE+++, STAMINA---
   ///////////////////////////////////////////////////////////////////////////////////////
-
   // * note: had to change the names of each character's CORE actions due to binding issues...
   // ==> should now be able to dynamically update our Action Buttons
   action3() {
-    // this.removeListeners();
-    // hughie.addListeners();
-
     let staminaCost = 60; // bind temporary variable staminaCost to this attack
     let attackDamage = 200; // bind temporary variable attackDamage to this attack
 
@@ -807,18 +718,19 @@ class Hughie {
     this.name = "Hughie"; // Character Name
     this.health = 500; // Current-Health Value
     this.maxHealth = 500; // Maximum-Health Value
-    this.stamina = 1000; // Current-Stamina Value
-    this.maxStamina = 1000; // Maximum-Stamina Value
+    this.stamina = 1200; // Current-Stamina Value
+    this.maxStamina = 1200; // Maximum-Stamina Value
     this.accuracy = 0.9; // Each character has a % chance of hitting each shot. Higher^ accuracy value === higher chance of successfully landing your attack/heal/action
 
-    // *** Arthur's suggested binding syntax...
-    this.action1 = this.action1.bind(this);
-    this.action2 = this.action2.bind(this);
-    this.action3 = this.action3.bind(this);
+    // Action binding | allows us to reference 'this' via an asynchronous call (in this case ==> event listener)
+    this.action1 = this.action1.bind(this); // binds Hughie's action1 to ==> tacticalNous()
+    this.action2 = this.action2.bind(this); // binds Hughie's action2 to ==> fleetwoodMac()
+    this.action3 = this.action3.bind(this); // binds Hughie's action3 to ==> letsTalk()
 
     // *** Ended up approaching binding from a different angle...
     // this.tacticalNous = this.tacticalNous.bind(this); // Binding 'this' to this action...
     // this.fleetwoodMac = this.fleetwoodMac.bind(this); // Binding 'this' to this action....
+    // this.letsTalk = this.letsTalk.bind(this); // Binding 'this' to this action...
     // this.letsTalk = this.letsTalk.bind(this); // Binding 'this' to this action....
   }
 
@@ -827,40 +739,6 @@ class Hughie {
   //////    -----SUPPLEMENTAL METHODS-----    //////
   //////                                      //////
   //////////////////////////////////////////////////
-
-  // addListeners() {
-  //   actionButton1.addEventListener(
-  //     "click", // then listen for a click...
-  //     this.tacticalStrike // then upon click... execute action1 for the currentlySelected character
-  //   );
-
-  //   actionButton2.addEventListener(
-  //     "click", // then listen for a click...
-  //     this.fieldMedic // then upon click... execute action1 for the currentlySelected character
-  //   );
-
-  //   actionButton3.addEventListener(
-  //     "click", // then listen for a click...
-  //     this.battlefieldTriage // then upon click... execute action1 for the currentlySelected character
-  //   );
-  // }
-
-  // removeListeners() {
-  //   actionButton1.removeEventListener(
-  //     "click", // then listen for a click...
-  //     this.tacticalStrike // then upon click... execute action1 for the currentlySelected character
-  //   );
-
-  //   actionButton2.removeEventListener(
-  //     "click", // then listen for a click...
-  //     this.fieldMedic // then upon click... execute action1 for the currentlySelected character
-  //   );
-
-  //   actionButton3.removeEventListener(
-  //     "click", // then listen for a click...
-  //     this.battlefieldTriage // then upon click... execute action1 for the currentlySelected character
-  //   );
-  // }
 
   // updateStats()
   // • At the end of every round and enemy attack, this updateStats() method will push stat updates for each character's Health Points and Stamina Points
@@ -908,11 +786,10 @@ class Hughie {
 
   ////// TACTICAL NOUS – Tactical skill that deals a small amount of damage AND reveals an enemy's weakness (if they have any!). DAMAGE 1/2+, STAMINA--
   ///////////////////////////////////////////////////////////////////////////////////////
-
   // * note: had to change the names of each character's CORE actions due to binding issues...
   // ==> should now be able to dynamically update our Action Buttons
   action1() {
-    let staminaCost = 20; // bind temporary variable staminaCost to this skill
+    let staminaCost = 25; // bind temporary variable staminaCost to this skill
     let attackDamage = 5; // bind temporary variable attackDamage to this skill
 
     if (this.stamina >= staminaCost) {
@@ -942,7 +819,7 @@ class Hughie {
           // if target's name is Starlight...
           // then updateMessage()
           updateMessage(
-            "Starlight seems to have a soft-spot for Hughie... Maybe we should let him lean into his emotional personality?"
+            "Starlight seems to have a soft-spot for Hughie... Maybe we should let him lean into his sensitive personality?"
           );
         } else if (opponent.name === "Black Noir") {
           // if target's name is Black Noir...
@@ -1009,11 +886,10 @@ class Hughie {
 
   ////// FLEETWOOD MAC – Hughie, White Mage and lover of smooth tunes. This move heals the entire team for a moderate amount. HEAL++, STAMINA--
   ///////////////////////////////////////////////////////////////////////////////////////
-
   // * note: had to change the names of each character's CORE actions due to binding issues...
   // ==> should now be able to dynamically update our Action Buttons
   action2() {
-    let staminaCost = 20; // bind temporary variable staminaCost to this skill
+    let staminaCost = 50; // bind temporary variable staminaCost to this skill
     let healAmount = 50; // bind temporary variable healAmoutn to this skill
 
     if (this.stamina >= staminaCost) {
@@ -1040,7 +916,7 @@ class Hughie {
           }
           // then updateMessage()
           updateMessage(
-            "Now that is soul-soothing… the whole team feels revitalized!"
+            "Now *that* is soul-soothing… the whole team feels revitalized!"
           );
         }
       } else {
@@ -1069,7 +945,6 @@ class Hughie {
 
   ////// *Special*: LET'S TALK – FOR A COST... Mild-mannered and meek, Hughie believes anything can be worked through if you just talk about it. Let's see how it goes! DAMAGE??, STAMINA---
   ///////////////////////////////////////////////////////////////////////////////////////
-
   // * note: had to change the names of each character's CORE actions due to binding issues...
   // ==> should now be able to dynamically update our Action Buttons
   action3() {
@@ -1087,10 +962,12 @@ class Hughie {
           // if target name is Starlight...
           // then updateMessage()
           updateMessage(
-            `Annie! Listen to me: You're not like the rest of The Seven! Since when did "hopeful" and "naive" become the same thing? I know you are in this business to try to save the world.. We can help! Help us stop Homelander!`
+            `Annie! Listen to me: You're not like the rest of The Seven! Since when did "hopeful" 
+            and "naive" become the same thing? I know you are in this business to try to save the world.. 
+            We can help! Help us stop Homelander!`
           );
-
-          // *** then battleWin()
+          // ADD A SET TIMEOUT SO THAT WE CAN READ THE MESSAGE BEFORE THE GAME ENDS LOL
+          battleWin();
           // *** nextCutscene()
         } else {
           // if target name is anything other than Starlight...
@@ -1140,19 +1017,20 @@ class Frenchie {
     this.name = "Frenchie"; // Character Name
     this.health = 700; // Current-Health Value
     this.maxHealth = 700; // Maximum-Health Value
-    this.stamina = 550; // Current-Stamina Value
-    this.maxStamina = 550; // Maximum-Stamina Value
+    this.stamina = 1100; // Current-Stamina Value
+    this.maxStamina = 1100; // Maximum-Stamina Value
     this.accuracy = 0.8; // Each character has a % chance of hitting each shot. Higher^ accuracy value === higher chance of successfully landing your attack/heal/action
 
-    // *** Arthur's suggested binding syntax...
-    this.action1 = this.action1.bind(this);
-    this.action2 = this.action2.bind(this);
-    this.action3 = this.action3.bind(this);
+    // Action binding | allows us to reference 'this' via an asynchronous call (in this case ==> event listener)
+    this.action1 = this.action1.bind(this); // binds Frenchie's action1 to ==> gunRunner()
+    this.action2 = this.action2.bind(this); // binds Frenchie's action2 to ==> improvisedExplosives()
+    this.action3 = this.action3.bind(this); // binds Frenchie's action3 to ==> spontaneousInventor()
 
     // *** Ended up approaching binding from a different angle...
-    // this.giftedMarksman = this.giftedMarksman.bind(this); // Binding 'this' to this action...
-    // this.brutalize = this.brutalize.bind(this); // Binding 'this' to this action....
-    // this.diabolicalMate = this.diabolicalMate.bind(this); // Binding 'this' to this action....
+    // this.gunRunner = this.gunRunner.bind(this); // Binding 'this' to this action...
+    // this.improvisedExplosives = this.improviseExplosives.bind(this); // Binding 'this' to this action....
+    // this.spontaneousInventor = this.spontaneousInventor.bind(this); // Binding 'this' to this action....
+    // this.addListeners = this.addListeners.bind(this); // Binding 'this' to this action....
   }
 
   //////////////////////////////////////////////////
@@ -1207,7 +1085,6 @@ class Frenchie {
 
   ////// GUN RUNNER – Buy, sell, build, shoot – c'est vrai: Frenchie knows his way around guns. Basic attack. DAMAGE+, STAMINA-
   ///////////////////////////////////////////////////////////////////////////////////////
-
   // * note: had to change the names of each character's CORE actions due to binding issues...
   // ==> should now be able to dynamically update our Action Buttons
   action1() {
@@ -1223,7 +1100,8 @@ class Frenchie {
         opponent.health -= attackDamage; // then decrease target's health by attack damage
         // then updateMessage()
         updateMessage(
-          `Frenchie hit ${opponent.name} for ${attackDamage} damage!`
+          `Buy, sell, build shoot – c'est vrai: 
+          Frenchie knows his way around guns. Hit ${opponent.name} for ${attackDamage} damage!`
         );
       } else {
         // if our attack missed the enemy...
@@ -1248,7 +1126,6 @@ class Frenchie {
 
   ////// IMPROVISED EXPLOSIVES – Chemical engineering in the modern world. DAMAGE++, STAMINA--
   ///////////////////////////////////////////////////////////////////////////////////////
-
   // * note: had to change the names of each character's CORE actions due to binding issues...
   // ==> should now be able to dynamically update our Action Buttons
   action2() {
@@ -1268,15 +1145,16 @@ class Frenchie {
           // if target's name is Translucent AND Hughie has investigated Translucent's weakness...
           // then updateMessage()
           updateMessage(
-            "Frenchie did you just... put a bomb... in-.. inside of him?.. F*ck me, mate... That's bloody brilliant."
+            `Frenchie did you just... put a bomb... in-.. inside of him?.. 
+            F*ck me, mate... That's bloody brilliant.`
           );
-          // *** battleWin()
+          battleWin();
         } else {
           // if our target is anyone other than Translucent, AND/OR Hughie hasn't revealed Translucent's weakness yet.
           opponent.health -= attackDamage; // then decrease target's health by attack damage
           // then updateMessage()
           updateMessage(
-            `Frenchie hit ${opponent.name} for ${attackDamage} damage!`
+            `"Improvised" is right! Frenchie blew up ${opponent.name} for ${attackDamage} damage!`
           );
         }
       } else {
@@ -1303,7 +1181,6 @@ class Frenchie {
 
   ////// *Special*: SPONTANEOUS INVENTOR – FOR A COST... Frenchie was originally recruited to The Boys thanks to his history of developing impressive gadgets and creative weapons. Notable creations include: • a sniper-rifle round coated in the same carbon metamaterial as Translucent's skin (status: failure) • a xanax-bomb meant to counter the rage-induced powers of the Supe, Behemoth (status: success) • **SPOILERS** inspired by a turtle and its shell, Frenchie builds a plastic bomb meant for Translucent's... insides. (status: null) DAMAGE???, STAMINA---
   ///////////////////////////////////////////////////////////////////////////////////////
-
   // * note: had to change the names of each character's CORE actions due to binding issues...
   // ==> should now be able to dynamically update our Action Buttons
   action3() {
@@ -1325,7 +1202,9 @@ class Frenchie {
           opponent.health -= modifiedDamage; // then decrease target's health by the value of modifiedDamage
           // then updateMessage()
           updateMessage(
-            `Frenchie! Was that a... PB&J? You just threw a PB&J? *Surprisingly effective!* Black Noir took ${modifiedDamage} damage! Guess that nut allergy was serious...`
+            `Frenchie! Was that a... PB&J? You just threw a PB&J? 
+            *Surprisingly effective!* Black Noir took ${modifiedDamage} damage! 
+            Guess that nut allergy was serious...`
           );
         }
         if (
@@ -1336,7 +1215,9 @@ class Frenchie {
           opponent.health -= modifiedDamage; // then decrease target's health by the value of modifiedDamage
           // then updateMessage()
           updateMessage(
-            `Bonjour, mon amie.. Let us see how much you truly like fire... *Surprisingly effective!* Lamplighter took ${modifiedDamage} damage from Frenchie's molotov cocktail!`
+            `Bonjour, mon amie.. Let us see how much you truly like fire... 
+            *Surprisingly effective!* Lamplighter took ${modifiedDamage} damage 
+            from Frenchie's molotov cocktail!`
           );
         }
         if (opponent.name === "Homelander" && homelanderConvoCount > 1) {
@@ -1344,7 +1225,8 @@ class Frenchie {
           opponent.health -= modifiedDamage * homelanderBonus; // then decrease target's health by the value of (modifiedDamage * homelanderBonus)
           // then updateMessage()
           updateMessage(
-            `Salut. Let's see how much targeted sonic-energy your ears can take... *Surprisingly effective!* Homelander took ${modifiedDamage} damage from Frenchie's sonic emitter!`
+            `Salut. Let's see how much targeted sonic-energy your ears can take... 
+            *Surprisingly effective!* Homelander took ${modifiedDamage} damage from Frenchie's sonic emitter!`
           );
         }
       } else {
@@ -1486,7 +1368,8 @@ class Translucent {
   ///////////////////////////////////////////////////////////////////////////////////////
   updateStats() {
     // update current HP and SP in the DOM
-    opponentStats.innerHTML = `<h2>${opponent.name.toUpperCase()} 
+    opponentStats.innerHTML = `
+    <h2>${opponent.name.toUpperCase()} 
     <br />
     <br />
     <span>HP ${this.health} / ${this.maxHealth}</span></h2>`;
@@ -1528,7 +1411,7 @@ class Translucent {
     let attackDamage = 55; // bind temporary variable attackDamage to this attack
     let attackAccuracy = 0.9; // bind temporary variable attackAccuracy to this attack
 
-    // * note: keeping these temporary bindings here due to lexical scoping issues when I've tried refactoring them out... So for now, each Supe attack method will have them.
+    // Target Validation | Checks to see if target is alive... if alive, push to validTargets array
     let randomIndex = Math.floor(Math.random() * 4); // set randomIndex equal to a random value between 0 and 3
     let validTargets = []; // create a temporary array to house our valid, living members of The Boys
 
@@ -1541,13 +1424,18 @@ class Translucent {
           validTargets.push(member); // then push member into validTargets array
         }
       }
+
       console.log("Shit... Translucent's attack landed."); // then console.log
       let selectedTarget = validTargets[randomIndex]; // then set selectedTarget to a random, living member of The Boys
       selectedTarget.health -= attackDamage; // then deal damage to that randomly selected, living member of The Boys
-      // then updateMessage()
-      updateMessage(
-        `Translucent struck from the shadows! ${selectedTarget.name} took ${attackDamage} damage!`
-      );
+      setTimeout(() => {
+        // then setTimeout
+        updateMessage(
+          // then updateMessage()
+          `Translucent struck from the shadows! 
+        ${selectedTarget.name} took ${attackDamage} damage!`
+        );
+      }, 3000); // will execute in ==>  | 3 seconds |
     } else {
       // if attack misses entirely...
       console.log("Nice... Translucent's attack missed."); // then console.log
@@ -1561,7 +1449,7 @@ class Translucent {
     let attackDamage = 85; // bind temporary variable attackDamage to this attack
     let attackAccuracy = 0.8; // bind temporary variable attackAccuracy to this attack
 
-    // * note: keeping these temporary bindings here due to lexical scoping issues when I've tried refactoring them out... So for now, each Supe attack method will have them.
+    // Target Validation | Checks to see if target is alive... if alive, push to validTargets array
     let randomIndex = Math.floor(Math.random() * 4); // set randomIndex equal to a random value between 0 and 3
     let validTargets = []; // create a temporary array to house our valid, living members of The Boys
 
@@ -1578,10 +1466,14 @@ class Translucent {
       // after our validTargets array has been propagated with our living members of The Boys...
       let selectedTarget = validTargets[randomIndex]; // then set selectedTarget to a random, living member of The Boys
       selectedTarget.health -= attackDamage; // then deal damage to that randomly selected, living member of The Boys
-      // then updateMessage()
-      updateMessage(
-        `Translucent attack from nowhere! ${selectedTarget.name} took ${attackDamage} damage!`
-      );
+      setTimeout(() => {
+        // then setTimeout
+        updateMessage(
+          // then updateMessage()
+          `Translucent attacked from nowhere! It's like he's Sue Storm or something...
+        ${selectedTarget.name} took ${attackDamage} damage!`
+        );
+      }, 3000); // will execute in ==>  | 3 seconds |
     } else {
       // if attack misses entirely...
       console.log("Nice... Translucent's attack missed."); // then console.log
@@ -1602,7 +1494,14 @@ class Translucent {
       if (this.health < this.maxHealth - healAmount) {
         // if current health is < maxHealth minus heal amount...
         this.health += healAmount; // then increase current health by heal amount
-        updateMessage(`Translucent restored his health by ${healAmount}`); // then updateMessage()
+        setTimeout(() => {
+          // then setTimeout
+          updateMessage(
+            // then updateMessage()
+            `Translucent successfully restored his health by ${healAmount}...
+          That bloody' Carbon Realignment, mate...`
+          );
+        }, 3000); // will execute in ==>  | 3 seconds |
       } else {
         // if current health is > maxHealth minus heal amount...
         this.health = this.maxHealth; // then set current health equal to the value of maxHealth
@@ -2181,13 +2080,14 @@ let opponent = theSupes[opponentIndex]; // Currently selected opponent from theS
 // =======================================================================================
 
 // startGame()
-// NEED IT TO...
+// • set currentlySelected
 // • update everyone's stats in the DOM
 // • start our battle
 ///////////////////////////////////////////////////////////////////////////////////////
 const startGame = () => {
   currentlySelected = theBoys[0];
   updateAllStats();
+  audioCommonBattle.play();
   initiateBattlePhase();
 };
 // END startGame()
@@ -2205,8 +2105,7 @@ const updateAllStats = () => {
 // END updateAllStats
 
 // areWeDead()
-// • Utilizes each member of The Boy's isDead() method in order
-// to determine whether if entire team is currently dead or not (will serve as our "checkLoss")
+// • Utilizes each member of The Boy's isDead() method in order to determine whether if entire team is currently dead or not | will serve as our "checkLoss" that will trigger battleLoss()
 ////// Dead ==> return true
 ////// Alive ==> return false
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -2227,15 +2126,13 @@ const areWeDead = () => {
 // END areWeDead()
 
 // areTheyDead()
-// • Utilize each Supe's isDead() method in order to determine whether
-// all enemies are currently dead or not (will serve as our "checkWin")
+// • Utilize each Supe's isDead() method in order to determine whether all enemies are currently dead or not | will serve as our "checkWin" that will trigger battleWin()
 //// Dead ==> return true
 //// Alive ==> return false
 /////////////////////////////////////////////////////////////////////////////////////
 const areTheyDead = () => {
-  // *** HARDCODING the first boss until after MVP
   // *** eventually refactor to account for multiple enemies
-  if (translucent.health < 1) {
+  if (opponent.health < 1) {
     return true;
   } else {
     return false;
@@ -2257,6 +2154,15 @@ const checkIfHit = (ally) => {
 };
 // END checkIfHit()
 
+// callEnemyPhase();
+// • Helper function to help initiate Enemy Phase regardless of how many allies are live...
+///////////////////////////////////////////////////////////////////////////////////////
+callEnemyPhase = () => {
+  if (playerIndex > 3) {
+    nextCharacter(); // then call nextCharacter to trip the ELSE statement found within without having to have one of The Boys act again...
+  }
+};
+
 // nextCharacter()
 // • Allows us to easily cycle through our theBoys array | start --> end --> start |
 // via the playerIndex global variable.
@@ -2264,44 +2170,10 @@ const checkIfHit = (ally) => {
 const nextCharacter = () => {
   if (playerIndex < theBoys.length) {
     // if playerIndex < the length of theBoys array... | ie ==> as long as playerIndex < 4 | * note: purposely set the comparison against the full length of the array so that we can use playerIndex of 4 to reference our enemy's turn to attack! Spicy!
-
-    // *************************
-    // REMOVE EVENT LISTENERS
-    // actionButton1.removeEventListener(
-    //   "click",
-    //   currentlySelected.action1.bind(currentlySelected)
-    // );
-    // actionButton2.removeEventListener(
-    //   "click",
-    //   currentlySelected.action2.bind(currentlySelected)
-    // );
-    // actionButton3.removeEventListener(
-    //   "click",
-    //   currentlySelected.action3.bind(currentlySelected)
-    // );
-
     playerIndex++; // then increment playerIndex
-
-    // *************************
-    // ADD EVENT LISTENERS
-    // actionButton1.addEventListener(
-    //   "click",
-    //   currentlySelected.action1.bind(currentlySelected)
-    // );
-    // actionButton2.addEventListener(
-    //   "click",
-    //   currentlySelected.action2.bind(currentlySelected)
-    // );
-    // actionButton3.addEventListener(
-    //   "click",
-    //   currentlySelected.action3.bind(currentlySelected)
-    // );
   } else {
     // if playerIndex > the length of theBoys array... | ie ==> if playerIndex >= 4
-    initiateEnemyPhase(); // then start Enemy Phase |
-    setTimeout(() => {
-      playerIndex = 0; // then reset playerIndex back to zero
-    }, 500); // will execute in ==>  | 0.5 seconds |
+    initiateEnemyPhase();
   }
   // *** LATER... CREATE A FUNCTION that toggles class/css/visual
   // features I want the currentlySelected character to have...
@@ -2310,10 +2182,10 @@ const nextCharacter = () => {
 // END nextCharacter()
 
 // initiateEnemyPhase()
-// • Launches the opponent's turn! After each living member of The Boys has gone, then start Enemy Phase:
-// select and execute a random attack, update stats for all characters, proceed to the next character, and then initiateBattlePhase.
+// • Launches the opponent's turn! After each living member of The Boys has gone, then start Enemy Phase: select and execute a random attack, update stats for all characters, proceed to the next character, and then initiateBattlePhase.
 ///////////////////////////////////////////////////////////////////////////////////////
 const initiateEnemyPhase = () => {
+  playerIndex = 0; // then reset playerIndex back to zero
   opponent.selectAttack(); // then have current opponent select and execute an attack
   updateAllStats(); // then updateStats for opponent + each of The Boys
   initiateBattlePhase(); // then initiate a fresh round of battle phases for The Boys
@@ -2340,13 +2212,14 @@ const initiateBattlePhase = () => {
           setTimeout(() => {
             // then setTimeout for...
             updateMessage(`It's M.M.'s turn...`); // then updateMessage
-          }, 1500); // will execute in ==>  | 1.5 seconds |
+          }, 3000); // will execute in ==>  | 1.5 seconds |
 
           // *** not sure what to put here for the moment... | choosing an action at this point (***SHOULD***) will move us to the next step of Battle Phase
         } else {
           // if M.M. is dead...
           nextCharacter(); // then cycle to the next character
           updateAllStats(); // then update everyone's stats in the DOM just in case
+          initiateBattlePhase(); // then start another round of Battle Phase
         }
       } else if (playerIndex === 1) {
         // if playerIndex is currently pointing at the value of | 1 |... | ie ==> if Butcher is the currentlySelected character...
@@ -2359,13 +2232,14 @@ const initiateBattlePhase = () => {
           setTimeout(() => {
             // then setTimeout for...
             updateMessage(`It's Butcher's turn...`); // then updateMessage
-          }, 1500); // will execute in ==>  | 1.5 seconds |
+          }, 3000); // will execute in ==>  | 1.5 seconds |
 
           // *** not sure what to put here for the moment... | choosing an action at this point (***SHOULD***) will move us to the next step of Battle Phase
         } else {
           // if Butcher is dead...
           nextCharacter(); // then cycle to the next character
           updateAllStats(); // then update everyone's stats in the DOM just in case
+          initiateBattlePhase(); // then start another round of Battle Phase
         }
       } else if (playerIndex === 2) {
         // if playerIndex is currently pointing at the value of | 2 |... | ie ==> if Hughie is the currentlySelected character...
@@ -2378,13 +2252,14 @@ const initiateBattlePhase = () => {
           setTimeout(() => {
             // then setTimeout for...
             updateMessage(`It's Hughie's turn...`); // then updateMessage
-          }, 1500); // will execute in ==>  | 1.5 seconds |
+          }, 3000); // will execute in ==>  | 1.5 seconds |
 
           // *** not sure what to put here for the moment... | choosing an action at this point (***SHOULD***) will move us to the next step of Battle Phase
         } else {
           // if Hughie is dead...
           nextCharacter(); // then cycle to the next character
           updateAllStats(); // then update everyone's stats in the DOM just in case
+          initiateBattlePhase(); // then start another round of Battle Phase
         }
       } else if (playerIndex === 3) {
         // if playerIndex is currently pointing at the value of | 3 |... | ie ==> if Frenchie is the currentlySelected character...
@@ -2392,37 +2267,32 @@ const initiateBattlePhase = () => {
           // if Frenchie is alive...
           console.log("It's Frenchie's turn..."); // then console.log
           currentlySelected = theBoys[3]; // then set currentlySelected to Frenchie
-          // refreshButtons();
 
           setTimeout(() => {
             // then setTimeout for...
             updateMessage(`It's Frenchie's turn...`); // then updateMessage
-          }, 1500); // will execute in ==>  | 1.5 seconds |
+          }, 3000); // will execute in ==>  | 1.5 seconds |
 
-          // *** not sure what to put here for the moment... | choosing an action at this point (***SHOULD***) will move us to the next step of Battle Phase
+          // *** | choosing an action at this point (***SHOULD***) will move us to the next step of Battle Phase
         } else {
           // if Frenchie is dead...
           nextCharacter(); // then cycle to the next character
           updateAllStats(); // then update everyone's stats in the DOM just in case
+          initiateBattlePhase(); // then start another round of Battle Phase
         }
-      } // else if (playerIndex === 4) {
-      // if player index is currently pointing at the value of | 4 |...
-      // initiateEnemyPhase(); // then initiate Enemy Phase
-      // }
+      }
+      callEnemyPhase();
     } else {
       // if areWeDead returns true... | ie, if every member of The Boys is dead...
-      //
-      //
+      battleLoss();
       // BATTLE LOSS CONDITION RIGHT HERE... SO... execute functions below accordingly
       // then...
-      // battleLoss();
       // nextLevel()
       // getNextCutscene()
       // ...something like that...
     }
   } else {
     // if areTheyDead() returns true... | ie, if all enemies are dead...
-
     battleWin();
     // BATTLE WIN CONDITION RIGHT HERE... SO... execute functions below accordingly
     // BATTLE WIN MODAL POP UP
@@ -2446,7 +2316,7 @@ const initiateBattlePhase = () => {
 const battleWin = () => {
   opponent.health = 0;
   console.log("Your opponent has been defeated... You won!");
-  // BATTLE WIN MODAL POP UP
+  toggleWinWindow();
 };
 // END battleWin()
 
@@ -2455,51 +2325,16 @@ const battleWin = () => {
 ///////////////////////////////////////////////////////////////////////////////////////
 const battleLoss = () => {
   console.log("The Boys have all been defeated... You lost...");
-  // BATTLE LOSS MODAL POP UP
-  // need to add modal to the DOM
-  // need to add a function to open the modal (could just add class ~here)
-  // need to
+  toggleLossWindow();
 };
 // END battleLoss()
-
-// refreshButtons()
-// • Helper function to make sure our action buttons are always pointing at the correct character
-///////////////////////////////////////////////////////////////////////////////////////
-// refreshButtons = () => {
-//   // actionButton1.removeEventListener(
-//   //   "click", // then listen for a click...
-//   //   currentlySelected.action1.bind(currentlySelected) // then upon click... execute action1 for the currentlySelected character
-//   // );
-//   actionButton1.addEventListener(
-//     "click", // then listen for a click...
-//     currentlySelected.action1.bind(currentlySelected) // then upon click... execute action1 for the currentlySelected character
-//   );
-
-//   // actionButton2.removeEventListener(
-//   //   "click", // then listen for a click...
-//   //   currentlySelected.action2.bind(currentlySelected) // then upon click... execute action2 for the currentlySelected character
-//   // );
-//   actionButton2.addEventListener(
-//     "click", // then listen for a click...
-//     currentlySelected.action2.bind(currentlySelected) // then upon click... execute action2 for the currentlySelected character
-//   );
-
-//   // actionButton3.removeEventListener(
-//   //   "click", // then listen for a click...
-//   //   currentlySelected.action3.bind(currentlySelected) // then upon click... execute action3 for the currentlySelected character
-//   // );
-//   actionButton3.addEventListener(
-//     "click", // then listen for a click...
-//     currentlySelected.action3.bind(currentlySelected) // then upon click... execute action3 for the currentlySelected character
-//   );
-// };
-// END refreshButtons()
 
 // getLevel()
 // • Determines which opponent we are facing dependent on what 'level' we are on. We will use
 // the level to set our case in our switch statement — each level correlates to a specific opponent.
 //////  Vought Tower  ==>  | Level 1 = Translucent |    ==>    | Level 2 = The Deep |     ==>    | Level 3 = A-Train |     ==>    | Level 4 = Starlight |     ==>    | Level 5 = Black Noir |    ==>    | Level 6 = Lamplighter |    ==>    | Level 7 = Homelander |
 ///////////////////////////////////////////////////////////////////////////////////////
+
 /*
   Taking a step back to focus on the MVP rather than 
   my loftier goals. Get MVP working and circle back 
@@ -2538,148 +2373,6 @@ const getLevel = (level) => {
 };
 // END getLevel()
 */
-
-//////////////////////////////////////////////////
-//////                                      //////
-//////     --ACTION BUTTON DELEGATION--     //////
-//////                                      //////
-//////////////////////////////////////////////////
-
-// ACTION DELEGATION
-// • use the below expressions to assign functionality to our Action 1, Action 2, and Action 3 buttons respectively.
-// Each button should to correspond to the  currentlySelected member's moveset.
-///////////////////////////////////////////////////////////////////////////////////////
-
-// ** CURRENT ISSUE WITH THE BELOW IS THAT IT'S TRYING TO FIRE OFF THE FIRST COMMAND OF MM'S (THE currentlySelected) AS SOON AS THE PAGE LOADS...
-
-// // switch / case...
-// switch (currentlySelected) {
-//   // if currently selected...
-//   case mothersMilk: {
-//     // is mothersMilk...
-
-//     // addEvent (actionButton1, 'click', * ATTACK FUNCTION *)
-
-//     actionButton1.removeEventListener(
-//       "click",
-//       currentlySelected.gunRunner.bind(currentlySelected)
-//     ); // then remove any pre-exiting eventListeners from actionButton1  | * should * always be frenchie's previous addEvent
-//     actionButton1.addEventListener(
-//       "click",
-//       currentlySelected.tacticalStrike.bind(currentlySelected)
-//     ); // then add MM's actionButton1 function ==> tacticalStrike()
-
-//     actionButton2.removeEventListener(
-//       "click",
-//       currentlySelected.improvisedExplosives.bind(currentlySelected)
-//     ); // then remove any pre-exiting eventListeners from actionButton2  | * should * always be frenchie's previous addEvent
-//     actionButton2.addEventListener(
-//       "click",
-//       currentlySelected.fieldMedic.bind(currentlySelected)
-//     ); // then add MM's actionButton2 function ==> fieldMedic()
-
-//     actionButton3.removeEventListener(
-//       "click",
-//       currentlySelected.spontaneousInventor.bind(currentlySelected)
-//     ); // then remove any pre-existing eventListeners from actionButton3  | * should * always be frenchie's previous addEvent
-//     actionButton3.addEventListener(
-//       "click",
-//       currentlySelected.battlefieldTriage.bind(currentlySelected)
-//     ); // then add MM's actionButton3 function ==> battlefieldTriage()
-//   }
-//   // if currently selected...
-//   case butcher: {
-//     // is butcher...
-//     actionButton1.removeEventListener(
-//       "click",
-//       currentlySelected.tacticalStrike.bind(currentlySelected)
-//     ); // then remove any pre-exiting eventListeners from actionButton1  | * should * always be mothersMilk's previous addEvent
-//     actionButton1.addEventListener(
-//       "click",
-//       currentlySelected.giftedMarksman.bind(currentlySelected)
-//     ); // then add Butcher's actionButton1 function ==> giftedMarksman()
-
-//     actionButton2.removeEventListener(
-//       "click",
-//       currentlySelected.fieldMedic.bind(currentlySelected)
-//     ); // then remove any pre-exiting eventListeners from actionButton2   | * should * always be mothersMilk's previous addEvent
-//     actionButton2.addEventListener(
-//       "click",
-//       currentlySelected.brutalize.bind(currentlySelected)
-//     ); // then add Butcher's actionButton2 function ==> brutalize()
-
-//     actionButton3.removeEventListener(
-//       "click",
-//       currentlySelected.battlefieldTriage.bind(currentlySelected)
-//     ); // then remove any pre-existing eventListeners from actionButton3   | * should * always be mothersMilk's previous addEvent
-//     actionButton3.addEventListener(
-//       "click",
-//       currentlySelected.diabolicalMate.boind(currentlySelected)
-//     ); // then add Butcher's actionButton3 function ==> diabolicalMate()
-//   }
-//   // if currently selected...
-//   case hughie: {
-//     // is hughie...
-//     actionButton1.removeEventListener(
-//       "click",
-//       currentlySelected.giftedMarksman.bind(currentlySelected)
-//     ); // then remove any pre-exiting eventListeners from actionButton1  | * should * always be butcher's previous addEvent
-//     actionButton1.addEventListener(
-//       "click",
-//       currentlySelected.tacticalNous.bind(currentlySelected)
-//     ); // then add Hughie's actionButton1 function ==> tacticalNous()
-
-//     actionButton2.removeEventListener(
-//       "click",
-//       currentlySelected.brutalize.bind(currentlySelected)
-//     ); // then remove any pre-exiting eventListeners from actionButton2  | * should * always be butcher's previous addEvent
-//     actionButton2.addEventListener(
-//       "click",
-//       currentlySelected.fleetwoodMac.bind(currentlySelected)
-//     ); // then add Hughie's actionButton2 function ==> fleetwoodMac()
-
-//     actionButton3.removeEventListener(
-//       "click",
-//       currentlySelected.diabolicalMate.bind(currentlySelected)
-//     ); // then remove any pre-existing eventListeners from actionButton3  | * should * always be butcher's previous addEvent
-//     actionButton3.addEventListener(
-//       "click",
-//       currentlySelected.letsTalk.bind(currentlySelected)
-//     ); // then add Hughie's actionButton3 function ==> letsTalk()
-//   }
-//   // if currently selected...
-//   case frenchie: {
-//     // is frenchie...
-//     actionButton1.removeEventListener(
-//       "click",
-//       currentlySelected.tacticalNous.bind(currentlySelected)
-//     ); // then remove any pre-exiting eventListeners from actionButton1  | * should * always be hughie's previous addEvent
-//     actionButton1.addEventListener(
-//       "click",
-//       currentlySelected.gunRunner.bind(currentlySelected)
-//     ); // then add Frenchie's actionButton1 function ==> gunRunner()
-
-//     actionButton2.removeEventListener(
-//       "click",
-//       currentlySelected.fleetwoodMac.bind(currentlySelected)
-//     ); // then remove any pre-exiting eventListeners from actionButton2  | * should * always be hughie's previous addEvent
-//     actionButton2.addEventListener(
-//       "click",
-//       currentlySelected.improvisedExplosives.bind(currentlySelected)
-//     ); // then add Frenchie's actionButton2 function ==> improvisedExplosives()
-
-//     actionButton3.removeEventListener(
-//       "click",
-//       currentlySelected.letsTalk.bind(currentlySelected)
-//     ); // then remove any pre-existing eventListeners from actionButton3  | * should * always be hughie's previous addEvent
-//     actionButton3.addEventListener(
-//       "click",
-//       currentlySelected.spontaneousInventor.bind(currentlySelected)
-//     ); // then add Frenchie's actionButton3 function ==> spontaneousInventor()
-//   }
-// }
-
-// END action delegation...
 
 //////////////////////////////////////////////////
 //////                                      //////
@@ -2742,7 +2435,7 @@ let homelanderConvoCount = 0; // global counter that affects conversation-tree w
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // // *** Incorporating Multiple Levels / Bosses...
 // //
-//
+// getNextLevel
 //
 //
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2764,12 +2457,6 @@ let homelanderConvoCount = 0; // global counter that affects conversation-tree w
 // Action Buttons
 ///////////////////////////////////////////////////////////////////////////////////////
 
-// target actionButton1...
-// actionButton1.addEventListener(
-//   "click", // then listen for a click...
-//   currentlySelected.action1 // then upon click... execute action1 for the currentlySelected character
-// );
-
 actionButton1.addEventListener("click", () => {
   const player = currentlySelected;
   player.action1();
@@ -2784,18 +2471,6 @@ actionButton3.addEventListener("click", () => {
   const player = currentlySelected;
   player.action3();
 });
-
-// // target actionButton2...
-// actionButton2.addEventListener(
-//   "click", // then listen for a click...
-//   currentlySelected.action2 // then upon click... execute action2 for the currentlySelected character
-// );
-
-// // target actionButton3...
-// actionButton3.addEventListener(
-//   "click", // then listen for a click...
-//   currentlySelected.action3 // then upon click... execute action3 for the currentlySelected character
-// );
 
 // Heal Buttons
 ///////////////////////////////////////////////////////////////////////////////////////

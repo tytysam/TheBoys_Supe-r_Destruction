@@ -14,6 +14,13 @@
     <script defer src="js/app.js"></script>
   </head>
   <body>
+    <!-- AUDIO TO-PLAY ON-LOAD -->
+    <audio
+      type="audio/ogg"
+      id="common-battle"
+      src="assets/audio/Common Fight.ogg"
+      loop
+    ></audio>
     <!-- Visual Output in gameplay-container –
       Holds currentEnemy + The Boys -->
     <div class="gameplay-container">
@@ -43,7 +50,6 @@
         <!-- Far Left Info Pane - Displays Enemy Name + Enemy Health -->
         <div class="enemy-stats-container ff-style" id="opponent-stats">
           <h2>TRANSLUCENT</h2>
-          <br />
           <h2>HP: <span id="enemy-current-health">500 / 500</span></h2>
           <!-- Eventually add a Health Progress Bar HERE -->
         </div>
@@ -59,7 +65,7 @@
           <button id="btn-heal-2">B</button>
           <button id="btn-heal-3">H</button>
           <button id="btn-heal-4">F</button>
-          
+
           <!-- 
             CIRCLE BACK AND ADD HEAL-TARGETING WHEN YOU ADD YOUR DOM MANIPULATION 
              * really just a series of 3 small buttons that, when clicked, will adjust a global variable
@@ -97,15 +103,19 @@
     <!--    Welcome Modal    -->
     <div class="modal ff-style" id="welcome-modal">
       <div class="rules">
-        <h3>The Rules:</h3>
         <p>
           <!-- Placeholder messages for now. Circle back Post-MVP -->
           Do you have what it takes to make it to the top of Vought Tower? The
-          mightiest Supes in the world stand between you and... what is it
+          mightiest Supes in the world stand between you and... what even is it
           you're searching for... Glory?
         </p>
+        <br />
+        <br />
+
         <!-- Placeholder messages for now. Circle back Post-MVP -->
         <p>Defeat all members of The Seven in order to emerge victorious!</p>
+        <br />
+        <br />
         <button class="modal-button" id="get-started">
           ENTER VOUGHT TOWER
         </button>
@@ -129,20 +139,22 @@
   <div class="modal ff-style closed" id="winner-modal">
     <div class="rules">
       <h3>CONGRATULATIONS</h3>
+      <br />
       <p>
         <!-- Placeholder messages for now. Circle back Post-MVP -->
         You've succesfully stopped one of the Supes, but more members of The
         Seven still remain!
       </p>
-      <hr>
+      <br />
+      <br />
       <p>
         Would you like to proceed to the next floor of Vought Tower?
         <br />
-        (Replenish some HP and SP)
         <br />
+        <!-- (Replenish some HP and SP) -->
       </p>
-      <hr>
-      <!-- *** Might still remove each of the above horizontal rules, idk...  -->
+      <br />
+      <br />
 
       <!-- THIS BUTTON SHOULD TAKE YOU TO THE NEXT LEVEL and / or INCREMENT LEVEL -->
       <button class="modal-button" id="next-level">NEXT LEVEL</button>
@@ -155,10 +167,13 @@
   <div class="modal ff-style closed" id="loser-modal">
     <div class="rules">
       <h3>BUMMER</h3>
+      <br />
       <p>
         <!-- Placeholder messages for now. Circle back Post-MVP -->
         You've been stopped by your opponent. Did you really think ever you stood a chance against The Seven?
       </p>
+      <br />
+      <br />
 
       <!-- THIS BUTTON SHOULD TAKE YOU TO BACK TO THE TITLE PAGE -->
       <a href="index.html"><button class="modal-button" id="quit-level">QUIT</button></a>
