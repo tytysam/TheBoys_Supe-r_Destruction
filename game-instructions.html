@@ -12,23 +12,298 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css"
     />
-    <script defer src="js/app.js"></script>
   </head>
   <body>
-    <div class="image-container">
-      <img src="assets/backgrounds/city-background-8bit.png" alt="8Bit NYC" />
-    </div>
-    <div id="game-instructions"></div>
-    <h1>GAME INSTRUCTIONS</h1>
-    <div class="card">
-      <img src="assets/char-profile/billy-butcher_profile.png" />
-      <div class="text-container">
-        <h2>William "Billy" Butcher</h2>
-        <br />
-        <p>Description</p>
+    <section id="game-instructions">
+      <div class="image-container">
+        <img src="assets/backgrounds/city-background-8bit.png" alt="8Bit NYC" />
       </div>
-    </div>
+      <div class="card instructions-container">
+        <div class="text-container">
+          <h2>GAME INSTRUCTIONS</h2>
+          <br />
+          <p>
+            Billy Butcher, Marvin "Mothers" Milk, Hughie Campbell, and Frenchie
+            (the titular characters) each have their own reasons for wanting to
+            take down Supes — it all ends the same. Battle to the top of Vought
+            Tower, fighting new enemies on every floor until you reach
+            Homelander at the top and put an end to Vought, Compound-V, and The
+            Seven once and for all!
+          </p>
+          <hr />
+          <p>
+            Fight your enemies, using The Boys strategically to deal damage,
+            target weaknesses, and keep one another alive. As long as they stay
+            alive, each member of The Boys will get to choose an action before
+            their opponent responds. Use the three Action Buttons to choose from
+            each of the characters' three character-specific actions. Some
+            characters' actions heal their allies; in these cases, use the four
+            Heal Target Buttons below the Action Buttons to select the character
+            you would like to heal, then select your character's heal action via
+            its corresponding Action Button. Each character gets a single
+            action, and then it becomes the next character's turn. After all
+            members of The Boys have acted, their opponent will respond. Try not
+            to get melted by eye-beams or something. If you make it through your
+            battle, you'll have the opportunity to proceed further up Vought
+            Tower. Defeat enough Supes, and maybe you'll even get to face off
+            against Homelander himself...
+          </p>
+          <div class="btn">
+            <ul>
+              <li>
+                <a href="level-one.html">Play Game</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- CHARACTER PROFILES -->
+    <section id="chracter-profiles">
+      <div id="cards-container">
+        <!-- THE BOYS -->
+        <!-- TITLE CARD -->
+        <div class="card header">
+          <div class="text-container title-card">
+            <h2>The Boys</h2>
+            <p>
+              The Boys are vigilantes. A CIA black-ops team, their job is to
+              police, monitor and potentially stop the Seven, a group of vain,
+              inglorious superheroes. Founded by Billy Butcher, The Boys are out
+              to expose the corruption they believe the Seven represent.
+            </p>
+          </div>
+        </div>
+
+        <!-- CARD-LEFT -->
+        <div class="card left">
+          <img src="assets/char-profile/billy-butcher_profile.png" />
+          <div class="text-container">
+            <h3>William "Billy" Butcher</h3>
+            <p>
+              A former member of the British SAS, Billy Butcher is an expert
+              marksman, extremely skilled in hand-to-hand combat, and an
+              all-around B.A.M.F. While he’s blinded by his hatred for
+              Homelander, he’s also a natural leader, uniting The Boys in an
+              effort to eliminate The Seven.
+            </p>
+            <p>
+              Use Butcher’s cunning, strength, and sadistic nature to take down
+              Supes. Butcher packs a powerful, varied arsenal: manage his
+              stamina, and he can bring down almost any Supe.
+            </p>
+          </div>
+        </div>
+
+        <!-- CARD-RIGHT -->
+        <div class="card right">
+          <img src="assets/char-profile/mm_profile.png" />
+          <div class="text-container">
+            <h3>Marvin "Mothers" Milk</h3>
+            <p>
+              A former battlefield-medic turned family-man, Marvin “Mother’s”
+              Milk (or M.M.), has been out of the game for awhile – that is,
+              until Billy Butcher reels him back in. Blaming his father’s death
+              on Vought, M.M. won’t stop until he gets retribution.
+            </p>
+            <p>
+              A father, juvenile boys counselor, and former USMC medic, M.M. has
+              *range*. Use this versatile character to deal out damage, patch up
+              his allies, and maybe even save a life while he’s at it…
+            </p>
+          </div>
+        </div>
+
+        <!-- CARD-LEFT -->
+        <div class="card left">
+          <img src="assets/char-profile/hughie_profile.png" />
+          <div class="text-container">
+            <h3>Hugh "Hughie" Campbell Jr.</h3>
+            <p>
+              Hughie was a mild-mannered guy with a boring job and a girlfriend
+              he loved. That is, until A-Train dashed *through* his girlfriend,
+              upending his life, and setting it on a course with one sole goal:
+              get revenge for Robin.
+            </p>
+            <p>
+              Hughie isn’t much of a fighter, but his skill and cunning in
+              combat may surprise you… Use his intelligence and healing
+              abilities to support your team in battle.
+            </p>
+          </div>
+        </div>
+
+        <!-- CARD-RIGHT -->
+        <div class="card right">
+          <img src="assets/char-profile/frenchie_profile.png" />
+          <div class="text-container">
+            <h3>Frenchie</h3>
+            <p>
+              A drug-dabbling, gunrunning jack-of-all-trades, Frenchie’s
+              skillsets are an invaluable resource to Butcher and The Boys. Once
+              a killer-for-hire, the faces of those he’s killed still linger
+              with him, unshakable like scars.
+            </p>
+            <p>
+              Frenchie is equally skilled with a blade as he is at science. He
+              likes improvising his own weapons — you never know what he’ll come
+              up with next.
+            </p>
+          </div>
+        </div>
+
+        <!-- THE SUPES -->
+        <!-- TITLE CARD(S) -->
+        <div class="card header">
+          <div class="text-container title-card">
+            <h2>The Supes</h2>
+            <p>
+              The Seven is the most popular and powerful American Superhero
+              team, owned and managed by Vought International. They consist of
+              seven superheroes; while The Seven oftentimes use their powers to
+              stop "crimes", their principal pursuit is typically fame and
+              glory.
+            </p>
+          </div>
+        </div>
+
+        <!-- CARD-LEFT -->
+        <div class="card left">
+          <img src="assets/char-profile/translucent_profile.png" />
+          <div class="text-container">
+            <h3>Translucent</h3>
+            <p>
+              The Seven's invisible supermember. Bulletproof and pervy, how do
+              The Boys stand a chance?
+            </p>
+            <p>
+              Egomaniacal and overconfident in his abilities, Translucent’s
+              corruption is enhanced further by his (seemingly) indestructible
+              skin. A master of stealth, he can sneak anywhere and give bad guys
+              the surprise of a lifetime. Translucent loves using his
+              invisibility to lurk where he shouldn’t.
+            </p>
+          </div>
+        </div>
+        <!-- CARD-RIGHT -->
+        <div class="card right">
+          <img src="assets/char-profile/the-deep_profile.png" />
+          <div class="text-container">
+            <h3>The Deep</h3>
+            <p>
+              (real name: Kevin Moskowitz | other alias: Lord of the Seven Seas)
+            </p>
+            <p>
+              The Deep can breathe underwater and communicate with sea
+              creatures. His attractive features have made him central to
+              Vought’s social media propaganda. Unfortunately, that’s pretty
+              much all the company wants from him — he’s The Seven’s token
+              aquatic Superhero.
+            </p>
+          </div>
+        </div>
+
+        <!-- CARD-LEFT -->
+        <div class="card left">
+          <img src="assets/char-profile/a-train_profile.png" />
+          <div class="text-container">
+            <h3>A-Train</h3>
+            <p>
+              He killed Hughie Campbell's girlfriend, Robin. He ran through her.
+              A-Train is fast.
+            </p>
+            <p>
+              A-Train is a speedster who used to be part of the teenage Supe
+              team, Teenage Kix. He inadvertently killed the
+              love-of-Hughie’s-life with his powers while high on Compound-V.
+              He’ll do whatever it takes to remain in The Seven, because he
+              knows it’s only a matter of time until a younger, faster
+              challenger takes his place — and that’s a problem even the fastest
+              man in the world can’t outrun.
+            </p>
+          </div>
+        </div>
+
+        <!-- CARD-RIGHT -->
+        <div class="card right">
+          <img src="assets/char-profile/starlight_profile.png" />
+          <div class="text-container">
+            <h3>Starlight</h3>
+            <p>("The Defender of Des Moines" | real name: Annie January)</p>
+            <p>
+              Annie January is as down-to-earth and sincere as they come; the
+              girl next door with superpowers. All she’s ever wanted to do is
+              save the world — and while a lot of people say that as a corny
+              catchphrase, she actually means it. However, her dream of joining
+              The Seven becomes her worst nightmare when this fresh-faced
+              Midwesterner arrives in New York and learns that the old adage is
+              true: never meet your heroes.
+            </p>
+          </div>
+        </div>
+
+        <!-- CARD-LEFT -->
+        <div class="card left">
+          <img src="assets/char-profile/black-noir_profile.png" />
+          <div class="text-container">
+            <h3>Black Noir</h3>
+            <p>
+              Silent, stealthy, and enigmatic, Black Noir is The Seven’s
+              superpowered ninja. His super strength and heightened senses are
+              matched only by his proficiency in the martial arts.
+            </p>
+            <p>
+              His super strength and heightened senses are matched only by his
+              proficiency in martial arts. Criminals run at the mere mention of
+              his name.
+            </p>
+          </div>
+        </div>
+
+        <!-- CARD-RIGHT -->
+        <div class="card right">
+          <img src="assets/char-profile/lamplighter_profile.png" />
+          <div class="text-container">
+            <h3>Lamplighter</h3>
+            <p>He just wants to make his dad proud...</p>
+            <p>
+              Lamplighter was a Supe with pyrokinetic abilities and Starlight's
+              predecessor in The Seven. After facing blackmail and demands that
+              he spy on The Seven, Lamplighter attempted to kill the leader of
+              The Boys — Grace Mallory — but accidentally killed her
+              grandchildren by mistake.
+            </p>
+          </div>
+        </div>
+
+        <!-- CARD-LEFT -->
+        <div class="card left last">
+          <img src="assets/char-profile/homelander_profile.png" />
+          <div class="text-container">
+            <h3>Homelander</h3>
+            <p>
+              Vought's prized-possession.
+              <br />
+              "You see, companies, they come and go. But talent... talent is
+              forever."
+            </p>
+            <p>
+              With the face of a movie star and the power of a god, Homelander
+              is considered the greatest superhero alive and the leader of The
+              Seven. On the surface, he’s affable, modest, and sincere; the
+              ultimate Boy Scout, an American treasure, a God-fearing patriot.
+              But just like mere mortals, even superheroes have secrets...
+            </p>
+          </div>
+        </div>
+        <!-- RETURN TO TOP BUTTON -->
+        <div id="return-to-top">
+          <p>made with <b>love</b> by tyler samuelson.</p>
+          <br />
+          <a href="#game-instructions"><i class="up-arrow"></i></a>
+        </div>
+        <!-- END - RETURN TO TOP BUTTON-->
+      </div>
+    </section>
   </body>
 </html>
-
-/*

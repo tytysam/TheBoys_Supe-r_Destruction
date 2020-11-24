@@ -39,7 +39,7 @@ body {
 }
 
 .sub-title > h1 {
-  color: #ffffff;
+  color: #e7dfe7;
   text-shadow: 5px 5px 0px #490702;
   text-align: center;
   font-family: "Press Start 2P";
@@ -77,7 +77,7 @@ li {
 li > a {
   font-size: 20px;
   text-align: center;
-  color: #ffffff;
+  color: #e7dfe7;
   text-shadow: 2px 2px 0px #008080;
   font-family: "Press Start 2P";
   margin: 5px 10px 5px 10px;
